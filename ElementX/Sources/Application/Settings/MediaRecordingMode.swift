@@ -6,7 +6,7 @@
 //
 
 /// Which format the composer's record button captures. Toggled by tapping the button.
-enum MediaRecordingMode: String, Codable {
+nonisolated enum MediaRecordingMode: String, Codable {
     case voice
     case roundVideo
 }

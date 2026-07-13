@@ -621,6 +621,13 @@ extension PreviewTests {
     }
 
     @Test
+    func mediaRecordingButton() async throws {
+        for (index, preview) in MediaRecordingButton_Previews._allPreviews.enumerated() {
+            try await assertSnapshots(matching: preview, step: index)
+        }
+    }
+
+    @Test
     func mediaUploadPreviewScreen() async throws {
         for (index, preview) in MediaUploadPreviewScreen_Previews._allPreviews.enumerated() {
             try await assertSnapshots(matching: preview, step: index)
@@ -1050,6 +1057,13 @@ extension PreviewTests {
     @Test
     func roomThreadListScreen() async throws {
         for (index, preview) in RoomThreadListScreen_Previews._allPreviews.enumerated() {
+            try await assertSnapshots(matching: preview, step: index)
+        }
+    }
+
+    @Test
+    func roundVideoComposerBars() async throws {
+        for (index, preview) in RoundVideoComposerBars_Previews._allPreviews.enumerated() {
             try await assertSnapshots(matching: preview, step: index)
         }
     }
@@ -1533,13 +1547,6 @@ extension PreviewTests {
     @Test
     func voiceMessagePreviewComposer() async throws {
         for (index, preview) in VoiceMessagePreviewComposer_Previews._allPreviews.enumerated() {
-            try await assertSnapshots(matching: preview, step: index)
-        }
-    }
-
-    @Test
-    func voiceMessageRecordingButton() async throws {
-        for (index, preview) in VoiceMessageRecordingButton_Previews._allPreviews.enumerated() {
             try await assertSnapshots(matching: preview, step: index)
         }
     }

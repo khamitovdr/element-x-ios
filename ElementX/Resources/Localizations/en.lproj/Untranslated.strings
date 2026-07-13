@@ -1,3 +1,7 @@
+"a11y_video_message_record_ios" = "Record video message";
+"a11y_video_message_switch_to_voice_ios" = "Switch to voice message";
+"a11y_voice_message_switch_to_video_ios" = "Switch to video message";
+"common_video_message_ios" = "Video message";
 "screen_home_tab_search" = "Search";
 "screen_search_empty_state_message" = "Search for chats and messages";
 "screen_search_empty_state_title" = "Start searching...";

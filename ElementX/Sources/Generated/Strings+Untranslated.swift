@@ -10,6 +10,14 @@ import Foundation
 // swiftlint:disable explicit_type_interface function_parameter_count identifier_name line_length
 // swiftlint:disable nesting type_body_length type_name vertical_whitespace_opening_braces
 internal nonisolated enum UntranslatedL10n {
+  /// Record video message
+  internal static var a11yVideoMessageRecordIos: String { return UntranslatedL10n.tr("Untranslated", "a11y_video_message_record_ios") }
+  /// Switch to voice message
+  internal static var a11yVideoMessageSwitchToVoiceIos: String { return UntranslatedL10n.tr("Untranslated", "a11y_video_message_switch_to_voice_ios") }
+  /// Switch to video message
+  internal static var a11yVoiceMessageSwitchToVideoIos: String { return UntranslatedL10n.tr("Untranslated", "a11y_voice_message_switch_to_video_ios") }
+  /// Video message
+  internal static var commonVideoMessageIos: String { return UntranslatedL10n.tr("Untranslated", "common_video_message_ios") }
   /// Search
   internal static var screenHomeTabSearch: String { return UntranslatedL10n.tr("Untranslated", "screen_home_tab_search") }
   /// Search for chats and messages
