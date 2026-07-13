@@ -307,12 +307,14 @@ Co-Authored-By: Claude Fable 5 <noreply@anthropic.com>"
 - Produces (consumed by Tasks 6–10):
 
 ```swift
-enum RoundVideoRecorderError: Error, Equatable
-enum RoundVideoRecorderAction   // didStartRecording / didStopRecording(url:duration:) / didFailWithError(error:)
-enum RoundVideoCameraPosition   // front / back, var avPosition: AVCaptureDevice.Position
-protocol RoundVideoRecorderProtocol: AnyObject
+nonisolated enum RoundVideoRecorderError: Error, Equatable
+nonisolated enum RoundVideoRecorderAction   // didStartRecording / didStopRecording(url:duration:) / didFailWithError(error:)
+nonisolated enum RoundVideoCameraPosition   // front / back, var avPosition: AVCaptureDevice.Position
+nonisolated protocol RoundVideoRecorderProtocol: AnyObject, Sendable
 class RoundVideoRecorderState: ObservableObject  // recordingState, duration, cameraPosition, captureSession
 ```
+
+Isolation note: the project builds with `SWIFT_DEFAULT_ACTOR_ISOLATION: MainActor`, so these declarations MUST carry explicit `nonisolated` (and `Sendable` on the protocol) — mirroring `AudioRecorderProtocol` (`nonisolated protocol AudioRecorderProtocol: AnyObject, Sendable`). Without it, the capture engine's `nonisolated class` conformance in Task 6 re-infers main-actor requirements and fails to compile.
 
 - [ ] **Step 1: Write the protocol and state files**
 
@@ -323,7 +325,7 @@ import AVFoundation
 import Combine
 import Foundation
 
-enum RoundVideoRecorderError: Error, Equatable {
+nonisolated enum RoundVideoRecorderError: Error, Equatable {
     case cameraPermissionNotGranted
     case microphonePermissionNotGranted
     case configurationFailure
@@ -333,13 +335,13 @@ enum RoundVideoRecorderError: Error, Equatable {
     case failedSendingRoundVideo
 }
 
-enum RoundVideoRecorderAction {
+nonisolated enum RoundVideoRecorderAction {
     case didStartRecording
     case didStopRecording(url: URL, duration: TimeInterval)
     case didFailWithError(error: RoundVideoRecorderError)
 }
 
-enum RoundVideoCameraPosition {
+nonisolated enum RoundVideoCameraPosition {
     case front
     case back
 
@@ -358,7 +360,7 @@ enum RoundVideoCameraPosition {
     }
 }
 
-protocol RoundVideoRecorderProtocol: AnyObject {
+nonisolated protocol RoundVideoRecorderProtocol: AnyObject, Sendable {
     var actions: AnyPublisher<RoundVideoRecorderAction, Never> { get }
     var isRecording: Bool { get }
     /// Elapsed recording time, for driving the live UI.
