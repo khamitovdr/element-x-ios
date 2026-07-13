@@ -7,7 +7,7 @@
 
 import Foundation
 
-protocol RoundVideoCacheProtocol {
+nonisolated protocol RoundVideoCacheProtocol: Sendable {
     /// A fresh URL to record into, named with the round video marker and current date.
     func urlForNewRecording() -> URL
     /// Removes all cached round video files.
