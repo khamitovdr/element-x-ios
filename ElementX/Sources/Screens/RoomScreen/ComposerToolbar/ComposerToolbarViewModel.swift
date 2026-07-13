@@ -22,6 +22,7 @@ final class ComposerToolbarViewModel: ComposerToolbarViewModelType, ComposerTool
     private let roomProxy: JoinedRoomProxyProtocol
     private let analyticsService: AnalyticsServiceProtocol
     private let draftService: ComposerDraftServiceProtocol
+    private let appSettings: AppSettings
     private var identityPinningViolations = [String: RoomMemberProxyProtocol]()
     
     private let mentionBuilder: MentionBuilderProtocol
@@ -59,6 +60,7 @@ final class ComposerToolbarViewModel: ComposerToolbarViewModelType, ComposerTool
         self.completionSuggestionService = completionSuggestionService
         self.analyticsService = analyticsService
         self.roomProxy = roomProxy
+        self.appSettings = appSettings
         draftService = composerDraftService
         
         mentionBuilder = MentionBuilder()
@@ -71,6 +73,8 @@ final class ComposerToolbarViewModel: ComposerToolbarViewModelType, ComposerTool
                                                               isLocationSharingEnabled: appSettings.mapTilerSettings.publisher.value.isEnabled,
                                                               bindings: .init()),
                    mediaProvider: mediaProvider)
+        
+        state.mediaRecordingMode = appSettings.preferredMediaRecordingMode
         
         state.keyCommands = [
             .enter { [weak self] in
@@ -192,6 +196,8 @@ final class ComposerToolbarViewModel: ComposerToolbarViewModelType, ComposerTool
             switch state.composerMode {
             case .previewVoiceMessage:
                 actionsSubject.send(.voiceMessage(.send))
+            case .previewRoundVideo:
+                actionsSubject.send(.roundVideo(.send))
             default:
                 if context.composerFormattingEnabled {
                     actionsSubject.send(.sendMessage(plain: wysiwygViewModel.content.markdown,
@@ -234,6 +240,11 @@ final class ComposerToolbarViewModel: ComposerToolbarViewModelType, ComposerTool
             handleSuggestion(suggestion)
         case .voiceMessage(let voiceMessageAction):
             processVoiceMessageAction(voiceMessageAction)
+        case .roundVideo(let roundVideoAction):
+            processRoundVideoAction(roundVideoAction)
+        case .toggleRecordingMode:
+            state.mediaRecordingMode = state.mediaRecordingMode == .voice ? .roundVideo : .voice
+            appSettings.preferredMediaRecordingMode = state.mediaRecordingMode
         case .plainComposerTextChanged:
             completionSuggestionService.processTextMessage(state.bindings.plainComposerText.string, selectedRange: context.viewState.bindings.selectedRange)
         case .selectedTextChanged:
@@ -478,6 +489,13 @@ final class ComposerToolbarViewModel: ComposerToolbarViewModelType, ComposerTool
         }
     }
     
+    private func processRoundVideoAction(_ action: ComposerToolbarRoundVideoAction) {
+        if case .startRecording = action {
+            state.bindings.composerFormattingEnabled = false
+        }
+        actionsSubject.send(.roundVideo(action))
+    }
+    
     private func setupMentionsHandling(mentionDisplayHelper: MentionDisplayHelper) {
         wysiwygViewModel.mentionDisplayHelper = mentionDisplayHelper
         
@@ -584,6 +602,10 @@ final class ComposerToolbarViewModel: ComposerToolbarViewModelType, ComposerTool
             state.audioRecorderState = audioRecorderState
         case .previewVoiceMessage(let audioPlayerState, _, _):
             state.audioPlayerState = audioPlayerState
+        case .recordRoundVideo(let recorderState):
+            state.roundVideoRecorderState = recorderState
+        case .previewRoundVideo:
+            break
         case .edit, .reply:
             // Focus composer when switching to reply/edit
             state.bindings.composerFocused = true
@@ -800,7 +822,7 @@ private final class ComposerMentionReplacer: MentionReplacer {
 // MARK: - Mocks
 
 extension ComposerToolbarViewModel {
-    enum MockMode { case editing, recordVoiceMessage, previewVoiceMessage(isUploading: Bool), reply(isLoading: Bool) }
+    enum MockMode { case editing, recordVoiceMessage, previewVoiceMessage(isUploading: Bool), recordRoundVideo, previewRoundVideo(isUploading: Bool), reply(isLoading: Bool) }
     
     static func mock(focused: Bool = false,
                      message: String = "",
@@ -843,6 +865,12 @@ extension ComposerToolbarViewModel {
                                                                                         duration: 10.0),
                                                                 waveform: .data(Array(repeating: 1.0, count: 1000)),
                                                                 isUploading: isUploading)
+        case .recordRoundVideo:
+            viewModel.state.composerMode = .recordRoundVideo(state: RoundVideoRecorderState())
+        case .previewRoundVideo(let isUploading):
+            viewModel.state.composerMode = .previewRoundVideo(url: URL(filePath: "/tmp/round-video-preview.mp4"),
+                                                              duration: 12,
+                                                              isUploading: isUploading)
         case .reply(let isLoading):
             let replyDetails: TimelineItemReplyDetails = if isLoading {
                 .loading(eventID: "")

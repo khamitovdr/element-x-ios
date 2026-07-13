@@ -256,6 +256,8 @@ class TimelineViewModel: TimelineViewModelType, TimelineViewModelProtocol {
             composerFocusedSubject.send(isFocused)
         case .voiceMessage(let voiceMessageAction):
             processVoiceMessageAction(voiceMessageAction)
+        case .roundVideo(let roundVideoAction):
+            processRoundVideoAction(roundVideoAction)
         case .contentChanged(let isEmpty):
             guard appSettings.sharePresence else {
                 return
@@ -422,6 +424,9 @@ class TimelineViewModel: TimelineViewModelType, TimelineViewModelProtocol {
             Task { await timelineInteractionHandler.scrubVoiceMessagePlayback(scrubbing: scrubbing) }
         }
     }
+    
+    // TODO: Wire up round video recording/sending in the timeline interaction handler (round video messages follow-up).
+    private func processRoundVideoAction(_ action: ComposerToolbarRoundVideoAction) { }
     
     private func updateMembers(_ members: [RoomMemberProxyProtocol]) {
         state.members = members.reduce(into: [String: RoomMemberState]()) { dictionary, member in
@@ -796,7 +801,7 @@ class TimelineViewModel: TimelineViewModelType, TimelineViewModelProtocol {
                                                      inReplyToEventID: nil,
                                                      intentionalMentions: intentionalMentions)
             }
-        case .recordVoiceMessage, .previewVoiceMessage:
+        case .recordVoiceMessage, .previewVoiceMessage, .recordRoundVideo, .previewRoundVideo:
             fatalError("invalid composer mode.")
         }
         

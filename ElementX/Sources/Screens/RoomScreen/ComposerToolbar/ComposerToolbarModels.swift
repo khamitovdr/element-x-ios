@@ -23,6 +23,15 @@ enum ComposerToolbarVoiceMessageAction {
     case send
 }
 
+enum ComposerToolbarRoundVideoAction {
+    case startRecording
+    case stopRecording
+    case deleteRecording
+    case flipCamera
+    case previewPlaybackStarted
+    case send
+}
+
 enum ComposerToolbarViewModelAction {
     case sendMessage(plain: String, html: String?, mode: ComposerMode, intentionalMentions: IntentionalMentions)
     case editLastMessage
@@ -34,6 +43,7 @@ enum ComposerToolbarViewModelAction {
     case composerFocusedChanged(isFocused: Bool)
     
     case voiceMessage(ComposerToolbarVoiceMessageAction)
+    case roundVideo(ComposerToolbarRoundVideoAction)
     
     case contentChanged(isEmpty: Bool)
 }
@@ -53,6 +63,8 @@ enum ComposerToolbarViewAction {
     case selectedSuggestion(_ suggestion: SuggestionItem)
     
     case voiceMessage(ComposerToolbarVoiceMessageAction)
+    case roundVideo(ComposerToolbarRoundVideoAction)
+    case toggleRecordingMode
     
     case plainComposerTextChanged
     case didToggleFormattingOptions
@@ -77,6 +89,8 @@ struct ComposerToolbarViewState: BindableState {
     var suggestions: [SuggestionItem] = []
     var audioPlayerState: AudioPlayerState
     var audioRecorderState: AudioRecorderState
+    var mediaRecordingMode: MediaRecordingMode = .voice
+    var roundVideoRecorderState = RoundVideoRecorderState()
     
     var isRoomEncrypted: Bool
     var isLocationSharingEnabled: Bool
@@ -87,7 +101,7 @@ struct ComposerToolbarViewState: BindableState {
     
     var isUploading: Bool {
         switch composerMode {
-        case .previewVoiceMessage(_, _, let isUploading):
+        case .previewVoiceMessage(_, _, let isUploading), .previewRoundVideo(_, _, let isUploading):
             return isUploading
         default:
             return false
@@ -96,9 +110,9 @@ struct ComposerToolbarViewState: BindableState {
     
     var showSendButton: Bool {
         switch composerMode {
-        case .recordVoiceMessage:
+        case .recordVoiceMessage, .recordRoundVideo:
             return false
-        case .previewVoiceMessage:
+        case .previewVoiceMessage, .previewRoundVideo:
             return true
         default:
             if bindings.composerFormattingEnabled {
@@ -126,6 +140,10 @@ struct ComposerToolbarViewState: BindableState {
             return false
         }
         
+        if case .previewRoundVideo = composerMode {
+            return false
+        }
+        
         if bindings.composerFormattingEnabled {
             return composerEmpty
         } else {
@@ -140,6 +158,20 @@ struct ComposerToolbarViewState: BindableState {
         default:
             return false
         }
+    }
+    
+    var isRoundVideoModeActivated: Bool {
+        switch composerMode {
+        case .recordRoundVideo, .previewRoundVideo:
+            return true
+        default:
+            return false
+        }
+    }
+    
+    /// Any voice or round video recording/preview state is active.
+    var isMediaRecordingModeActivated: Bool {
+        isVoiceMessageModeActivated || isRoundVideoModeActivated
     }
 }
 
@@ -336,6 +368,8 @@ enum ComposerMode: Equatable {
     case edit(originalEventOrTransactionID: TimelineItemIdentifier.EventOrTransactionID, type: EditType)
     case recordVoiceMessage(state: AudioRecorderState)
     case previewVoiceMessage(state: AudioPlayerState, waveform: WaveformSource, isUploading: Bool)
+    case recordRoundVideo(state: RoundVideoRecorderState)
+    case previewRoundVideo(url: URL, duration: TimeInterval, isUploading: Bool)
     
     var isEdit: Bool {
         switch self {
@@ -350,7 +384,7 @@ enum ComposerMode: Equatable {
         switch self {
         case .default, .reply, .edit:
             return true
-        case .recordVoiceMessage, .previewVoiceMessage:
+        case .recordVoiceMessage, .previewVoiceMessage, .recordRoundVideo, .previewRoundVideo:
             return false
         }
     }

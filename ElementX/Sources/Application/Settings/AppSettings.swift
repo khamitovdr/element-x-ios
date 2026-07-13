@@ -344,6 +344,9 @@ final nonisolated class AppSettings: @unchecked Sendable {
     @UserPreference(defaultValue: AudioPlaybackSpeed.default)
     var voiceMessagePlaybackSpeed: AudioPlaybackSpeed
     
+    @UserPreference(defaultValue: MediaRecordingMode.voice)
+    var preferredMediaRecordingMode: MediaRecordingMode
+    
     /// Whether or not to show a warning on the media caption composer so the user knows
     /// that captions might not be visible to users who are using other Matrix clients.
     let shouldShowMediaCaptionWarning = true
