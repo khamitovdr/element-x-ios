@@ -68,7 +68,14 @@ nonisolated class RoundVideoRecorder: NSObject, RoundVideoRecorderProtocol, @unc
     }
     
     deinit {
-        cache.clearCache()
+        // Only this recorder's own artefacts — other timeline instances share the cache folder.
+        if isRecording {
+            cleanupCapture()
+        }
+        if let recordingURL {
+            try? FileManager.default.removeItem(at: recordingURL)
+            try? FileManager.default.removeItem(at: recordingURL.deletingPathExtension().appendingPathExtension("jpeg"))
+        }
     }
     
     // MARK: - RoundVideoRecorderProtocol

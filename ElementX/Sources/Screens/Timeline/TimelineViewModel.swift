@@ -410,6 +410,7 @@ class TimelineViewModel: TimelineViewModelType, TimelineViewModelProtocol {
     private func processVoiceMessageAction(_ action: ComposerToolbarVoiceMessageAction) {
         switch action {
         case .startRecording:
+            state.currentlyPlayingRoundVideoItemID = nil
             Task {
                 await mediaPlayerProvider.detachAllStates(except: nil)
                 await timelineInteractionHandler.startRecordingVoiceMessage()
@@ -436,6 +437,7 @@ class TimelineViewModel: TimelineViewModelType, TimelineViewModelProtocol {
     private func processRoundVideoAction(_ action: ComposerToolbarRoundVideoAction) {
         switch action {
         case .startRecording:
+            state.currentlyPlayingRoundVideoItemID = nil
             Task {
                 await mediaPlayerProvider.detachAllStates(except: nil)
                 await timelineInteractionHandler.startRecordingRoundVideo()
@@ -447,6 +449,7 @@ class TimelineViewModel: TimelineViewModelType, TimelineViewModelProtocol {
         case .flipCamera:
             Task { await timelineInteractionHandler.flipRoundVideoCamera() }
         case .previewPlaybackStarted:
+            state.currentlyPlayingRoundVideoItemID = nil
             Task { await mediaPlayerProvider.detachAllStates(except: nil) }
         case .send:
             Task { await timelineInteractionHandler.sendCurrentRoundVideo() }

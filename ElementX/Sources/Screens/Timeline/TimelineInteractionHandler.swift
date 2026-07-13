@@ -437,9 +437,12 @@ class TimelineInteractionHandler {
             roundVideoRecorderObserver = nil
         case .didFailWithError(let error):
             switch error {
-            case .cameraPermissionNotGranted, .microphonePermissionNotGranted:
+            case .cameraPermissionNotGranted:
                 MXLog.info("permission to record round video has not been granted.")
                 actionsSubject.send(.displayCameraPermissionError)
+            case .microphonePermissionNotGranted:
+                MXLog.info("permission to record round video has not been granted.")
+                actionsSubject.send(.displayAudioRecorderPermissionError)
             default:
                 MXLog.error("failed to record round video. \(error)")
             }
