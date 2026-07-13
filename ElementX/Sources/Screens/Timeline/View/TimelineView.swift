@@ -171,6 +171,7 @@ struct TimelineView_Previews: PreviewProvider { // Not testable as this preview 
         ElementNavigationStack {
             RoomScreen(context: roomViewModel.context,
                        timelineContext: timelineViewModel.context,
+                       composerToolbarContext: composerViewModel.context,
                        composerToolbar: ComposerToolbar(context: composerViewModel.context))
         }
     }

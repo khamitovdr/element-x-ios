@@ -14,6 +14,7 @@ import WysiwygComposer
 struct RoomScreen: View {
     @ObservedObject private var context: RoomScreenViewModelType.Context
     @ObservedObject private var timelineContext: TimelineViewModelType.Context
+    @ObservedObject private var composerToolbarContext: ComposerToolbarViewModelType.Context
     let composerToolbar: ComposerToolbar
     @Environment(\.accessibilityVoiceOverEnabled) private var isVoiceOverEnabled
     
@@ -28,9 +29,11 @@ struct RoomScreen: View {
     
     init(context: RoomScreenViewModelType.Context,
          timelineContext: TimelineViewModelType.Context,
+         composerToolbarContext: ComposerToolbarViewModelType.Context,
          composerToolbar: ComposerToolbar) {
         self.context = context
         self.timelineContext = timelineContext
+        self.composerToolbarContext = composerToolbarContext
         self.composerToolbar = composerToolbar
     }
     
@@ -70,6 +73,9 @@ struct RoomScreen: View {
                 }
                 .padding()
                 .animation(.elementDefault, value: markAsReadSource)
+            }
+            .overlay {
+                RoundVideoComposerOverlay(context: composerToolbarContext)
             }
             .background(Color.compound.bgCanvasDefault.ignoresSafeArea())
             .topBanners([
@@ -335,6 +341,7 @@ struct RoomScreen_Previews: PreviewProvider, TestablePreview {
         ElementNavigationStack {
             RoomScreen(context: viewModels.room.context,
                        timelineContext: viewModels.timeline.context,
+                       composerToolbarContext: composerViewModel.context,
                        composerToolbar: ComposerToolbar(context: composerViewModel.context))
         }
         .previewDisplayName("Normal")
@@ -342,6 +349,7 @@ struct RoomScreen_Previews: PreviewProvider, TestablePreview {
         ElementNavigationStack {
             RoomScreen(context: readOnlyViewModels.room.context,
                        timelineContext: readOnlyViewModels.timeline.context,
+                       composerToolbarContext: composerViewModel.context,
                        composerToolbar: ComposerToolbar(context: composerViewModel.context))
         }
         .previewDisplayName("Read-only")
@@ -350,6 +358,7 @@ struct RoomScreen_Previews: PreviewProvider, TestablePreview {
         ElementNavigationStack {
             RoomScreen(context: tombstonedViewModels.room.context,
                        timelineContext: tombstonedViewModels.timeline.context,
+                       composerToolbarContext: composerViewModel.context,
                        composerToolbar: ComposerToolbar(context: composerViewModel.context))
         }
         .previewDisplayName("Tombstoned")

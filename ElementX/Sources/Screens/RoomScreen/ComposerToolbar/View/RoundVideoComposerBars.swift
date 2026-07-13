@@ -73,7 +73,9 @@ struct RoundVideoPreviewStatusBar: View {
     }
 }
 
-private extension DateFormatter {
+extension DateFormatter {
+    /// Formats a round video's elapsed/remaining duration as `mm:ss`. Shared between the
+    /// in-toolbar status bars and the full-screen recording/preview overlay.
     static let roundVideoElapsedFormatter: DateFormatter = {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "mm:ss"

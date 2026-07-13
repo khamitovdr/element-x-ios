@@ -287,6 +287,7 @@
 		311868F5E65BA61AFA6CCC2C /* CompoundHook.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B89D6C760E8CAE29CA28FB1 /* CompoundHook.swift */; };
 		3118D9ABFD4BE5A3492FF88A /* ElementCallConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC437C491EA6996513B1CEAB /* ElementCallConfiguration.swift */; };
 		31DE6B7FD15E1C6E43885717 /* RoomRole.swift in Sources */ = {isa = PBXBuildFile; fileRef = 578AF9CE60816069536C0953 /* RoomRole.swift */; };
+		322A76B6478A83D2FFF95ECB /* RoundVideoPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6FDC3E8EE5544C46FFEEA052 /* RoundVideoPlayerView.swift */; };
 		32B7891D937377A59606EDFC /* UserFlowTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21DD8599815136EFF5B73F38 /* UserFlowTests.swift */; };
 		32BFB9B4D2EC46196537B72F /* ContentScannerProxyProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E6EB3C22BACF0A17FEDA4C4 /* ContentScannerProxyProtocol.swift */; };
 		32F47002A331817F0E6BD7EB /* RoomMembershipDetailsProxyProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1434D5169F0EE319E226DA7F /* RoomMembershipDetailsProxyProtocol.swift */; };
@@ -338,6 +339,7 @@
 		3A2640C52505BAB3D983A92A /* RemotePreference.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69A05E85E4872C3221C5C287 /* RemotePreference.swift */; };
 		3A64A93A651A3CB8774ADE8E /* SwiftOGG in Frameworks */ = {isa = PBXBuildFile; productRef = 3FE40E79C36E7903121E6E3B /* SwiftOGG */; };
 		3A68752BB9D51B8713C0FC2C /* AuthenticationStartScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = A768CA51A59B8A5D8C8FD599 /* AuthenticationStartScreen.swift */; };
+		3A85E4238B48741B8A288D68 /* RoundVideoComposerOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = E826E28A8C4CA8F5508B236A /* RoundVideoComposerOverlay.swift */; };
 		3AA9E878FDCFF85664AC071F /* ComposerDraftService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D70253004A5AEC9C73D6A4F /* ComposerDraftService.swift */; };
 		3B0718607B0665D163142DAE /* SDKGeneratedMocks.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C5BFCB7257F7A3CF70F5DA9 /* SDKGeneratedMocks.swift */; };
 		3B0F9B57D25B07E66F15762A /* MediaUploadPreviewScreenModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2E7C987AE5DC9087BB19F7D /* MediaUploadPreviewScreenModels.swift */; };
@@ -2133,6 +2135,7 @@
 		6FA38E813BE14149F173F461 /* PinnedEventsBannerStateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PinnedEventsBannerStateTests.swift; sourceTree = "<group>"; };
 		6FC5015B9634698BDB8701AF /* it */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = it; path = it.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
 		6FC8B21E86B137BE4E91F82A /* ElementCallServiceProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ElementCallServiceProtocol.swift; sourceTree = "<group>"; };
+		6FDC3E8EE5544C46FFEEA052 /* RoundVideoPlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoundVideoPlayerView.swift; sourceTree = "<group>"; };
 		7033218DA395B003F7AB29A2 /* MediaEventsTimelineScreenModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaEventsTimelineScreenModels.swift; sourceTree = "<group>"; };
 		7061BE2C0BF427C38AEDEF5E /* SecureBackupRecoveryKeyScreenViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecureBackupRecoveryKeyScreenViewModel.swift; sourceTree = "<group>"; };
 		70BA17E542757492510664F4 /* SpacesScreenViewModelProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpacesScreenViewModelProtocol.swift; sourceTree = "<group>"; };
@@ -2835,6 +2838,7 @@
 		E7495E1119753B06FF2C2279 /* PhotoLibraryManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoLibraryManager.swift; sourceTree = "<group>"; };
 		E76A706B3EEA32B882DA5E2D /* BlockedUsersScreenViewModelProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockedUsersScreenViewModelProtocol.swift; sourceTree = "<group>"; };
 		E78FC546F28E045A560F2963 /* EncryptionKeyProviderProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EncryptionKeyProviderProtocol.swift; sourceTree = "<group>"; };
+		E826E28A8C4CA8F5508B236A /* RoundVideoComposerOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoundVideoComposerOverlay.swift; sourceTree = "<group>"; };
 		E8294DB9E95C0C0630418466 /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/Localizable.strings; sourceTree = "<group>"; };
 		E8495F37D6245AD0CFA1F60B /* AppLockTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLockTests.swift; sourceTree = "<group>"; };
 		E8A1F98AE670377B20679FF5 /* MediaPlayerProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaPlayerProvider.swift; sourceTree = "<group>"; };
@@ -3143,6 +3147,7 @@
 				76A46ABD27628CB5FC402541 /* Backports.swift */,
 				F03AEAA2F66E796C365EFD58 /* ElementNavigationStack.swift */,
 				5DB56ABD78E60920ACE43087 /* PreviewScrollView.swift */,
+				6FDC3E8EE5544C46FFEEA052 /* RoundVideoPlayerView.swift */,
 				D2C513A6CD99E6C3C163DA1E /* RowDivider.swift */,
 				693E16574C6F7F9FA1015A8C /* Search.swift */,
 				832397B5C3D00A4BF52C5F0B /* ShouldScrollOnKeyboardDidShow.swift */,
@@ -5356,6 +5361,7 @@
 				345172AD4377E83A44BD864F /* MessageComposerTextField.swift */,
 				128501375217576AF0FE3E92 /* RoomAttachmentPicker.swift */,
 				4E701A41A37F66D13D5B99DF /* RoundVideoComposerBars.swift */,
+				E826E28A8C4CA8F5508B236A /* RoundVideoComposerOverlay.swift */,
 				2AE807361805463F5AEDD1CA /* VoiceMessagePreviewComposer.swift */,
 				73A5C3F7C9C1DA10CAEC6A98 /* VoiceMessageRecordingComposer.swift */,
 				5E9CBF577B9711CFBB4FA40D /* VoiceMessageRecordingView.swift */,
@@ -8580,7 +8586,9 @@
 				93B91CCB9A5ABC492D0B33B4 /* RoundVideoCache.swift in Sources */,
 				1FA45B59A7359FE7BA8F6A6F /* RoundVideoCacheProtocol.swift in Sources */,
 				59AAAFE68EA72FF731AEFEE0 /* RoundVideoComposerBars.swift in Sources */,
+				3A85E4238B48741B8A288D68 /* RoundVideoComposerOverlay.swift in Sources */,
 				2D96337ACCADFB43D0C40AEE /* RoundVideoMessage.swift in Sources */,
+				322A76B6478A83D2FFF95ECB /* RoundVideoPlayerView.swift in Sources */,
 				A2821C688812D0D00FCB99F0 /* RoundVideoRecorder.swift in Sources */,
 				04A682469E7474A00E31E8E5 /* RoundVideoRecorderProtocol.swift in Sources */,
 				2A4689A862937BA4CEE7F8DD /* RoundVideoRecorderState.swift in Sources */,
