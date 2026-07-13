@@ -14,7 +14,7 @@ import WysiwygComposer
 struct RoomScreen: View {
     @ObservedObject private var context: RoomScreenViewModelType.Context
     @ObservedObject private var timelineContext: TimelineViewModelType.Context
-    @ObservedObject private var composerToolbarContext: ComposerToolbarViewModelType.Context
+    private let composerToolbarContext: ComposerToolbarViewModelType.Context
     let composerToolbar: ComposerToolbar
     @Environment(\.accessibilityVoiceOverEnabled) private var isVoiceOverEnabled
     

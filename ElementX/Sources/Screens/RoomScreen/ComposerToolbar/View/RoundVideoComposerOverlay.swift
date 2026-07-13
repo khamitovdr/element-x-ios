@@ -99,6 +99,8 @@ private struct RoundVideoPreviewCircle: View {
     @State private var isPlaying = false
     @State private var progress: Double = 0
     
+    private let progressTimer = Timer.publish(every: 0.05, on: .main, in: .common).autoconnect()
+    
     var body: some View {
         ZStack {
             Color.black.opacity(0.55)
@@ -126,7 +128,7 @@ private struct RoundVideoPreviewCircle: View {
             progress = 0
             player?.seek(to: .zero)
         }
-        .onReceive(Timer.publish(every: 0.05, on: .main, in: .common).autoconnect()) { _ in
+        .onReceive(progressTimer) { _ in
             guard isPlaying, let player, let itemDuration = player.currentItem?.duration.seconds, itemDuration > 0 else { return }
             progress = player.currentTime().seconds / itemDuration
         }
