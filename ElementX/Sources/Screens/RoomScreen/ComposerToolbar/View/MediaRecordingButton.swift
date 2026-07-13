@@ -30,7 +30,28 @@ struct MediaRecordingButton: View {
     var body: some View {
         icon
             .contentShape(.circle)
-            .onTapGesture {
+            .gesture(longPressToRecordGesture.exclusively(before: tapGesture))
+            .accessibilityLabel(accessibilityLabel)
+            .accessibilityHint(accessibilityHint)
+            .accessibilityAddTraits(.isButton)
+            .accessibilityAction(named: recordAccessibilityActionName) {
+                guard !isRecording else { return }
+                startRecording?()
+            }
+    }
+    
+    private var longPressToRecordGesture: some Gesture {
+        LongPressGesture(minimumDuration: 0.4)
+            .onEnded { _ in
+                guard !isRecording else { return }
+                impactFeedbackGenerator.impactOccurred()
+                startRecording?()
+            }
+    }
+    
+    private var tapGesture: some Gesture {
+        TapGesture()
+            .onEnded {
                 impactFeedbackGenerator.impactOccurred()
                 if isRecording {
                     stopRecording?()
@@ -38,14 +59,6 @@ struct MediaRecordingButton: View {
                     toggleMode?()
                 }
             }
-            .onLongPressGesture(minimumDuration: 0.4) {
-                guard !isRecording else { return }
-                impactFeedbackGenerator.impactOccurred()
-                startRecording?()
-            }
-            .accessibilityLabel(accessibilityLabel)
-            .accessibilityHint(accessibilityHint)
-            .accessibilityAddTraits(.isButton)
     }
     
     @ViewBuilder
@@ -94,6 +107,13 @@ struct MediaRecordingButton: View {
         switch recordingMode {
         case .voice: return UntranslatedL10n.a11yVoiceMessageSwitchToVideoIos
         case .roundVideo: return UntranslatedL10n.a11yVideoMessageSwitchToVoiceIos
+        }
+    }
+    
+    private var recordAccessibilityActionName: String {
+        switch recordingMode {
+        case .voice: L10n.a11yVoiceMessageRecord
+        case .roundVideo: UntranslatedL10n.a11yVideoMessageRecordIos
         }
     }
 }
