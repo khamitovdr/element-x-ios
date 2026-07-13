@@ -922,6 +922,7 @@
 		A2357AA4A188BC37085BC6F0 /* EditRoomAddressScreenViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5FDFAA04174CC99FB66391C /* EditRoomAddressScreenViewModel.swift */; };
 		A23B8B27A1436A1049EEF68E /* InfoPlistReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A580295A56B55A856CC4084 /* InfoPlistReader.swift */; };
 		A2434D4DFB49A68E5CD0F53C /* MediaLoaderProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A02406480C351B8C6E0682C /* MediaLoaderProtocol.swift */; };
+		A2821C688812D0D00FCB99F0 /* RoundVideoRecorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 126DE44C5E5F41A9681C06CC /* RoundVideoRecorder.swift */; };
 		A2C246298B78AB4C6230C97E /* RoundVideoCacheTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60B448F339C547924F94C8F9 /* RoundVideoCacheTests.swift */; };
 		A32384E3D85CA65342D3A908 /* TimelineMediaPreviewRedactConfirmationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C75FE3F524B575D53787868C /* TimelineMediaPreviewRedactConfirmationView.swift */; };
 		A36AD251013402EDBD666C75 /* AppMediatorMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BAC027034248429A438886B /* AppMediatorMock.swift */; };
@@ -1604,6 +1605,7 @@
 		11FCAE847556719BBE7A0882 /* ReportRoomScreenModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportRoomScreenModels.swift; sourceTree = "<group>"; };
 		1215A4FC53D2319E81AE8970 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		1222DB76B917EB8A55365BA5 /* target.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = target.yml; sourceTree = "<group>"; };
+		126DE44C5E5F41A9681C06CC /* RoundVideoRecorder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoundVideoRecorder.swift; sourceTree = "<group>"; };
 		127A57D053CE8C87B5EFB089 /* Consumable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Consumable.swift; sourceTree = "<group>"; };
 		127C8472672A5BA09EF1ACF8 /* CurrentValuePublisher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrentValuePublisher.swift; sourceTree = "<group>"; };
 		127D1947BA9C6CA62E3D03EC /* DeclineAndBlockScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeclineAndBlockScreen.swift; sourceTree = "<group>"; };
@@ -6909,6 +6911,7 @@
 				D54C3B2B601D6CE64B3C63A7 /* RoundVideoCache.swift */,
 				93F0FD6AD5FAA7D17AF3D92B /* RoundVideoCacheProtocol.swift */,
 				326CFBBF2883396B2ABFF183 /* RoundVideoMessage.swift */,
+				126DE44C5E5F41A9681C06CC /* RoundVideoRecorder.swift */,
 				13EBFA4B21243D35D31722A7 /* RoundVideoRecorderProtocol.swift */,
 				65B39038CF3B7EEA561F330C /* RoundVideoRecorderState.swift */,
 				B897810809D001DE4D404621 /* RoundVideoSender.swift */,
@@ -8565,6 +8568,7 @@
 				93B91CCB9A5ABC492D0B33B4 /* RoundVideoCache.swift in Sources */,
 				1FA45B59A7359FE7BA8F6A6F /* RoundVideoCacheProtocol.swift in Sources */,
 				2D96337ACCADFB43D0C40AEE /* RoundVideoMessage.swift in Sources */,
+				A2821C688812D0D00FCB99F0 /* RoundVideoRecorder.swift in Sources */,
 				04A682469E7474A00E31E8E5 /* RoundVideoRecorderProtocol.swift in Sources */,
 				2A4689A862937BA4CEE7F8DD /* RoundVideoRecorderState.swift in Sources */,
 				5A0C387F0D7E5BCFC34D4FA0 /* RoundVideoSender.swift in Sources */,
