@@ -11163,6 +11163,163 @@ nonisolated class RoundVideoCacheMock: RoundVideoCacheProtocol, @unchecked Senda
         clearCacheClosure?()
     }
 }
+nonisolated class RoundVideoRecorderMock: RoundVideoRecorderProtocol, @unchecked Sendable {
+    var actions: AnyPublisher<RoundVideoRecorderAction, Never> {
+        get { return underlyingActions }
+        set(value) { underlyingActions = value }
+    }
+    nonisolated(unsafe) var underlyingActions: AnyPublisher<RoundVideoRecorderAction, Never>!
+    var isRecording: Bool {
+        get { return underlyingIsRecording }
+        set(value) { underlyingIsRecording = value }
+    }
+    nonisolated(unsafe) var underlyingIsRecording: Bool!
+    var currentTime: TimeInterval {
+        get { return underlyingCurrentTime }
+        set(value) { underlyingCurrentTime = value }
+    }
+    nonisolated(unsafe) var underlyingCurrentTime: TimeInterval!
+    nonisolated(unsafe) var recordingURL: URL?
+    var recordingDuration: TimeInterval {
+        get { return underlyingRecordingDuration }
+        set(value) { underlyingRecordingDuration = value }
+    }
+    nonisolated(unsafe) var underlyingRecordingDuration: TimeInterval!
+    var cameraPosition: RoundVideoCameraPosition {
+        get { return underlyingCameraPosition }
+        set(value) { underlyingCameraPosition = value }
+    }
+    nonisolated(unsafe) var underlyingCameraPosition: RoundVideoCameraPosition!
+    nonisolated(unsafe) var captureSession: AVCaptureSession?
+
+    //MARK: - startRecording
+
+    private let startRecordingCallsCountLock = NSLock()
+    private nonisolated(unsafe) var startRecordingUnderlyingCallsCount = 0
+    var startRecordingCallsCount: Int {
+        get { startRecordingCallsCountLock.withLock { startRecordingUnderlyingCallsCount } }
+        set { startRecordingCallsCountLock.withLock { startRecordingUnderlyingCallsCount = newValue } }
+    }
+    var startRecordingCalled: Bool {
+        return startRecordingCallsCount > 0
+    }
+    nonisolated(unsafe) var startRecordingClosure: (() async -> Void)?
+
+    @concurrent func startRecording() async {
+        startRecordingCallsCountLock.withLock { startRecordingUnderlyingCallsCount += 1 }
+        await startRecordingClosure?()
+    }
+    //MARK: - stopRecording
+
+    private let stopRecordingCallsCountLock = NSLock()
+    private nonisolated(unsafe) var stopRecordingUnderlyingCallsCount = 0
+    var stopRecordingCallsCount: Int {
+        get { stopRecordingCallsCountLock.withLock { stopRecordingUnderlyingCallsCount } }
+        set { stopRecordingCallsCountLock.withLock { stopRecordingUnderlyingCallsCount = newValue } }
+    }
+    var stopRecordingCalled: Bool {
+        return stopRecordingCallsCount > 0
+    }
+    nonisolated(unsafe) var stopRecordingClosure: (() async -> Void)?
+
+    @concurrent func stopRecording() async {
+        stopRecordingCallsCountLock.withLock { stopRecordingUnderlyingCallsCount += 1 }
+        await stopRecordingClosure?()
+    }
+    //MARK: - cancelRecording
+
+    private let cancelRecordingCallsCountLock = NSLock()
+    private nonisolated(unsafe) var cancelRecordingUnderlyingCallsCount = 0
+    var cancelRecordingCallsCount: Int {
+        get { cancelRecordingCallsCountLock.withLock { cancelRecordingUnderlyingCallsCount } }
+        set { cancelRecordingCallsCountLock.withLock { cancelRecordingUnderlyingCallsCount = newValue } }
+    }
+    var cancelRecordingCalled: Bool {
+        return cancelRecordingCallsCount > 0
+    }
+    nonisolated(unsafe) var cancelRecordingClosure: (() async -> Void)?
+
+    @concurrent func cancelRecording() async {
+        cancelRecordingCallsCountLock.withLock { cancelRecordingUnderlyingCallsCount += 1 }
+        await cancelRecordingClosure?()
+    }
+    //MARK: - deleteRecording
+
+    private let deleteRecordingCallsCountLock = NSLock()
+    private nonisolated(unsafe) var deleteRecordingUnderlyingCallsCount = 0
+    var deleteRecordingCallsCount: Int {
+        get { deleteRecordingCallsCountLock.withLock { deleteRecordingUnderlyingCallsCount } }
+        set { deleteRecordingCallsCountLock.withLock { deleteRecordingUnderlyingCallsCount = newValue } }
+    }
+    var deleteRecordingCalled: Bool {
+        return deleteRecordingCallsCount > 0
+    }
+    nonisolated(unsafe) var deleteRecordingClosure: (() async -> Void)?
+
+    @concurrent func deleteRecording() async {
+        deleteRecordingCallsCountLock.withLock { deleteRecordingUnderlyingCallsCount += 1 }
+        await deleteRecordingClosure?()
+    }
+    //MARK: - flipCamera
+
+    private let flipCameraCallsCountLock = NSLock()
+    private nonisolated(unsafe) var flipCameraUnderlyingCallsCount = 0
+    var flipCameraCallsCount: Int {
+        get { flipCameraCallsCountLock.withLock { flipCameraUnderlyingCallsCount } }
+        set { flipCameraCallsCountLock.withLock { flipCameraUnderlyingCallsCount = newValue } }
+    }
+    var flipCameraCalled: Bool {
+        return flipCameraCallsCount > 0
+    }
+    nonisolated(unsafe) var flipCameraClosure: (() async -> Void)?
+
+    @concurrent func flipCamera() async {
+        flipCameraCallsCountLock.withLock { flipCameraUnderlyingCallsCount += 1 }
+        await flipCameraClosure?()
+    }
+    //MARK: - sendRoundVideo
+
+    private let sendRoundVideoTimelineControllerCallsCountLock = NSLock()
+    private nonisolated(unsafe) var sendRoundVideoTimelineControllerUnderlyingCallsCount = 0
+    var sendRoundVideoTimelineControllerCallsCount: Int {
+        get { sendRoundVideoTimelineControllerCallsCountLock.withLock { sendRoundVideoTimelineControllerUnderlyingCallsCount } }
+        set { sendRoundVideoTimelineControllerCallsCountLock.withLock { sendRoundVideoTimelineControllerUnderlyingCallsCount = newValue } }
+    }
+    var sendRoundVideoTimelineControllerCalled: Bool {
+        return sendRoundVideoTimelineControllerCallsCount > 0
+    }
+    private let sendRoundVideoTimelineControllerReceivedTimelineControllerLock = NSLock()
+    private nonisolated(unsafe) var sendRoundVideoTimelineControllerUnderlyingReceivedTimelineController: TimelineControllerProtocol?
+    var sendRoundVideoTimelineControllerReceivedTimelineController: TimelineControllerProtocol? {
+        get { sendRoundVideoTimelineControllerReceivedTimelineControllerLock.withLock { sendRoundVideoTimelineControllerUnderlyingReceivedTimelineController } }
+        set { sendRoundVideoTimelineControllerReceivedTimelineControllerLock.withLock { sendRoundVideoTimelineControllerUnderlyingReceivedTimelineController = newValue } }
+    }
+    private let sendRoundVideoTimelineControllerReceivedInvocationsLock = NSLock()
+    private nonisolated(unsafe) var sendRoundVideoTimelineControllerUnderlyingReceivedInvocations: [TimelineControllerProtocol] = []
+    var sendRoundVideoTimelineControllerReceivedInvocations: [TimelineControllerProtocol] {
+        get { sendRoundVideoTimelineControllerReceivedInvocationsLock.withLock { sendRoundVideoTimelineControllerUnderlyingReceivedInvocations } }
+        set { sendRoundVideoTimelineControllerReceivedInvocationsLock.withLock { sendRoundVideoTimelineControllerUnderlyingReceivedInvocations = newValue } }
+    }
+
+    private let sendRoundVideoTimelineControllerReturnValueLock = NSLock()
+    private nonisolated(unsafe) var sendRoundVideoTimelineControllerUnderlyingReturnValue: Result<Void, RoundVideoRecorderError>!
+    var sendRoundVideoTimelineControllerReturnValue: Result<Void, RoundVideoRecorderError>! {
+        get { sendRoundVideoTimelineControllerReturnValueLock.withLock { sendRoundVideoTimelineControllerUnderlyingReturnValue } }
+        set { sendRoundVideoTimelineControllerReturnValueLock.withLock { sendRoundVideoTimelineControllerUnderlyingReturnValue = newValue } }
+    }
+    nonisolated(unsafe) var sendRoundVideoTimelineControllerClosure: ((TimelineControllerProtocol) async -> Result<Void, RoundVideoRecorderError>)?
+
+    @concurrent func sendRoundVideo(timelineController: TimelineControllerProtocol) async -> Result<Void, RoundVideoRecorderError> {
+        sendRoundVideoTimelineControllerCallsCountLock.withLock { sendRoundVideoTimelineControllerUnderlyingCallsCount += 1 }
+        sendRoundVideoTimelineControllerReceivedTimelineController = timelineController
+        sendRoundVideoTimelineControllerReceivedInvocationsLock.withLock { sendRoundVideoTimelineControllerUnderlyingReceivedInvocations.append(timelineController) }
+        if let sendRoundVideoTimelineControllerClosure = sendRoundVideoTimelineControllerClosure {
+            return await sendRoundVideoTimelineControllerClosure(timelineController)
+        } else {
+            return sendRoundVideoTimelineControllerReturnValue
+        }
+    }
+}
 nonisolated class SearchServiceProxyMock: SearchServiceProxyProtocol, @unchecked Sendable {
     var resultsPublisher: CurrentValuePublisher<[SearchServiceResult], Never> {
         get { return underlyingResultsPublisher }
