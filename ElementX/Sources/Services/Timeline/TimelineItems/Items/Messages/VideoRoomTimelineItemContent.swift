@@ -21,4 +21,7 @@ nonisolated struct VideoRoomTimelineItemContent: Hashable {
     
     var blurhash: String?
     var contentType: UTType?
+    
+    /// Renders as a circular, inline-playing Telegram-style video note.
+    var isRoundVideo = false
 }

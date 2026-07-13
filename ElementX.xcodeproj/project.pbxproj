@@ -140,6 +140,7 @@
 		167D00CAA13FAFB822298021 /* MediaProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62A81CCC2516D9CF9322DF01 /* MediaProviderTests.swift */; };
 		167D5024DB9D44197AEA0507 /* HomeScreenNewSoundBanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD5480F03306234FC086E93B /* HomeScreenNewSoundBanner.swift */; };
 		16A1F6C703305FCAF4E14EC6 /* TimelineProxyMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17A8AA0DFA06012A9DAB951E /* TimelineProxyMock.swift */; };
+		16ACA3E8CFA0D3A6A4351CEA /* RoundVideoRoomTimelineView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38885C2249DA3AAD41D649F1 /* RoundVideoRoomTimelineView.swift */; };
 		16CBD087038DE3815CDA512C /* PollMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = D38391154120264910D19528 /* PollMock.swift */; };
 		16E4F1B8B9BFE1367F96DDA7 /* CompletionSuggestionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 989FC684408B31A677F5538B /* CompletionSuggestionView.swift */; };
 		1702981A8085BE4FB0EC001B /* Application.swift in Sources */ = {isa = PBXBuildFile; fileRef = D33116993D54FADC0C721C1F /* Application.swift */; };
@@ -1834,6 +1835,7 @@
 		382B50F7E379B3DBBD174364 /* NotificationSettingsProxyMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationSettingsProxyMock.swift; sourceTree = "<group>"; };
 		38345442415E07A931197C55 /* AppLockScreenPINKeypad.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLockScreenPINKeypad.swift; sourceTree = "<group>"; };
 		384A744714571BAF138C6B86 /* ClassicAppAES.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClassicAppAES.swift; sourceTree = "<group>"; };
+		38885C2249DA3AAD41D649F1 /* RoundVideoRoomTimelineView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoundVideoRoomTimelineView.swift; sourceTree = "<group>"; };
 		38E521D6C2BF8DF0DFB35146 /* DeveloperOptionsScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeveloperOptionsScreen.swift; sourceTree = "<group>"; };
 		3984C93B8E9B10C92DADF9EE /* RoomDirectorySearchScreenScreenModelProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoomDirectorySearchScreenScreenModelProtocol.swift; sourceTree = "<group>"; };
 		398817652FA8ABAE0A31AC6D /* ReadableFrameModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadableFrameModifier.swift; sourceTree = "<group>"; };
@@ -6363,6 +6365,7 @@
 				AF8548D48512127CCC17C520 /* PollRoomTimelineView.swift */,
 				012A284622B32052015F1F89 /* ReadMarkerRoomTimelineView.swift */,
 				91C8BD78F7B9247AC57FA1A3 /* RedactedRoomTimelineView.swift */,
+				38885C2249DA3AAD41D649F1 /* RoundVideoRoomTimelineView.swift */,
 				2910422CB628D3B2BBE47449 /* SeparatorRoomTimelineView.swift */,
 				B2AF1828A5B76B7C371240FE /* StateRoomTimelineView.swift */,
 				D5338450E6783A576B5C16DD /* StickerRoomTimelineView.swift */,
@@ -8592,6 +8595,7 @@
 				A2821C688812D0D00FCB99F0 /* RoundVideoRecorder.swift in Sources */,
 				04A682469E7474A00E31E8E5 /* RoundVideoRecorderProtocol.swift in Sources */,
 				2A4689A862937BA4CEE7F8DD /* RoundVideoRecorderState.swift in Sources */,
+				16ACA3E8CFA0D3A6A4351CEA /* RoundVideoRoomTimelineView.swift in Sources */,
 				5A0C387F0D7E5BCFC34D4FA0 /* RoundVideoSender.swift in Sources */,
 				97A73C19928D27474A71E1E8 /* RoundVideoThumbnailer.swift in Sources */,
 				B2F8E01ABA1BA30265B4ECBE /* RoundedCornerShape.swift in Sources */,

@@ -59,7 +59,11 @@ class TimelineInteractionHandler {
         }
     }
     
-    private var roundVideoRecorderObserver: AnyCancellable?
+    private var roundVideoRecorderObserver: AnyCancellable? {
+        didSet {
+            appMediator.setIdleTimerDisabled(roundVideoRecorderObserver != nil)
+        }
+    }
     
     private var resumeVoiceMessagePlaybackAfterScrubbing = false
     

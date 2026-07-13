@@ -156,6 +156,7 @@ enum TestablePreviewsDictionary {
             "RoomThreadListScreen_Previews" : RoomThreadListScreen_Previews.self,
             "RoundVideoComposerBars_Previews" : RoundVideoComposerBars_Previews.self,
             "RoundVideoComposerOverlay_Previews" : RoundVideoComposerOverlay_Previews.self,
+            "RoundVideoRoomTimelineView_Previews" : RoundVideoRoomTimelineView_Previews.self,
             "SFNumberedListView_Previews" : SFNumberedListView_Previews.self,
             "ScanStateMediaEventsTimelineViews_Previews" : ScanStateMediaEventsTimelineViews_Previews.self,
             "SearchScreen_Previews" : SearchScreen_Previews.self,

@@ -615,6 +615,10 @@ extension AccessibilityTests {
         try await performAccessibilityAudit(named: "RoundVideoComposerOverlay_Previews")
     }
 
+    func testRoundVideoRoomTimelineView() async throws {
+        try await performAccessibilityAudit(named: "RoundVideoRoomTimelineView_Previews")
+    }
+
     func testSFNumberedListView() async throws {
         try await performAccessibilityAudit(named: "SFNumberedListView_Previews")
     }

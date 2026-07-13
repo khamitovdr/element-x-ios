@@ -213,6 +213,13 @@ class TimelineViewModel: TimelineViewModelType, TimelineViewModelProtocol {
             handlePollAction(pollAction)
         case .handleAudioPlayerAction(let audioPlayerAction):
             handleAudioPlayerAction(audioPlayerAction)
+        case .roundVideoPlaybackStarted(let itemID):
+            state.currentlyPlayingRoundVideoItemID = itemID
+            Task { await mediaPlayerProvider.detachAllStates(except: nil) }
+        case .roundVideoPlaybackStopped(let itemID):
+            if state.currentlyPlayingRoundVideoItemID == itemID {
+                state.currentlyPlayingRoundVideoItemID = nil
+            }
         case .stopLiveLocationSharing(let id):
             state.stoppedLiveLocationIDs.insert(id)
             Task { await stopLiveLocationSharing() }
@@ -391,6 +398,7 @@ class TimelineViewModel: TimelineViewModelType, TimelineViewModelProtocol {
     private func handleAudioPlayerAction(_ action: TimelineAudioPlayerAction) {
         switch action {
         case .playPause(let itemID):
+            state.currentlyPlayingRoundVideoItemID = nil
             Task { await timelineInteractionHandler.playPauseAudio(for: itemID) }
         case .seek(let itemID, let progress):
             Task { await timelineInteractionHandler.seekAudio(for: itemID, progress: progress) }

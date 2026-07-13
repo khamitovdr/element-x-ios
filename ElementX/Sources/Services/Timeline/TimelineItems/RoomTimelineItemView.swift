@@ -35,7 +35,11 @@ struct RoomTimelineItemView: View {
         case .image(let item):
             ImageRoomTimelineView(timelineItem: item)
         case .video(let item):
-            VideoRoomTimelineView(timelineItem: item)
+            if item.content.isRoundVideo {
+                RoundVideoRoomTimelineView(timelineItem: item)
+            } else {
+                VideoRoomTimelineView(timelineItem: item)
+            }
         case .audio(let item):
             AudioRoomTimelineView(timelineItem: item)
         case .file(let item):

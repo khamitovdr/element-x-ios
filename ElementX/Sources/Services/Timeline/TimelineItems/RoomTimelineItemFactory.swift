@@ -679,7 +679,11 @@ nonisolated struct RoomTimelineItemFactory: RoomTimelineItemFactoryProtocol {
                      videoInfo: videoInfo,
                      thumbnailInfo: thumbnailInfo,
                      blurhash: messageContent.info?.blurhash,
-                     contentType: UTType(mimeType: messageContent.info?.mimetype, fallbackFilename: messageContent.filename))
+                     contentType: UTType(mimeType: messageContent.info?.mimetype, fallbackFilename: messageContent.filename),
+                     isRoundVideo: RoundVideoMessage.isRoundVideo(filename: messageContent.filename,
+                                                                  width: messageContent.info?.width,
+                                                                  height: messageContent.info?.height,
+                                                                  duration: messageContent.info?.duration))
     }
     
     private func buildLocationTimelineItemContent(_ locationContent: LocationContent) -> LocationRoomTimelineItemContent {
