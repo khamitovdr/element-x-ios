@@ -216,6 +216,7 @@ struct ReadReceiptSummaryInfo: Identifiable {
 
 enum TimelineAlertInfoType: Hashable {
     case audioRecodingPermissionError
+    case cameraRecordingPermissionError
     case pollEndConfirmation(String)
     case sendingFailed
     case encryptionAuthenticity(String)

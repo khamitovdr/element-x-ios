@@ -425,8 +425,25 @@ class TimelineViewModel: TimelineViewModelType, TimelineViewModelProtocol {
         }
     }
     
-    // TODO: Wire up round video recording/sending in the timeline interaction handler (round video messages follow-up).
-    private func processRoundVideoAction(_ action: ComposerToolbarRoundVideoAction) { }
+    private func processRoundVideoAction(_ action: ComposerToolbarRoundVideoAction) {
+        switch action {
+        case .startRecording:
+            Task {
+                await mediaPlayerProvider.detachAllStates(except: nil)
+                await timelineInteractionHandler.startRecordingRoundVideo()
+            }
+        case .stopRecording:
+            Task { await timelineInteractionHandler.stopRecordingRoundVideo() }
+        case .deleteRecording:
+            Task { await timelineInteractionHandler.deleteCurrentRoundVideo() }
+        case .flipCamera:
+            Task { await timelineInteractionHandler.flipRoundVideoCamera() }
+        case .previewPlaybackStarted:
+            Task { await mediaPlayerProvider.detachAllStates(except: nil) }
+        case .send:
+            Task { await timelineInteractionHandler.sendCurrentRoundVideo() }
+        }
+    }
     
     private func updateMembers(_ members: [RoomMemberProxyProtocol]) {
         state.members = members.reduce(into: [String: RoomMemberState]()) { dictionary, member in
@@ -516,6 +533,8 @@ class TimelineViewModel: TimelineViewModelType, TimelineViewModelProtocol {
                     actionsSubject.send(.composer(action: action))
                 case .displayAudioRecorderPermissionError:
                     displayAlert(.audioRecodingPermissionError)
+                case .displayCameraPermissionError:
+                    displayAlert(.cameraRecordingPermissionError)
                 case .displayErrorToast(let title):
                     displayErrorToast(title)
                 case .displayEmojiPicker(let itemID, let selectedEmojis):
@@ -1075,6 +1094,12 @@ class TimelineViewModel: TimelineViewModelType, TimelineViewModelProtocol {
             state.bindings.alertInfo = .init(id: type,
                                              title: L10n.dialogPermissionMicrophoneTitleIos(InfoPlistReader.main.bundleDisplayName),
                                              message: L10n.dialogPermissionMicrophoneDescriptionIos,
+                                             primaryButton: .init(title: L10n.commonSettings) { [weak self] in self?.appMediator.openAppSettings() },
+                                             secondaryButton: .init(title: L10n.actionNotNow, role: .cancel, action: nil))
+        case .cameraRecordingPermissionError:
+            state.bindings.alertInfo = .init(id: type,
+                                             title: UntranslatedL10n.dialogPermissionCameraTitleIos(InfoPlistReader.main.bundleDisplayName),
+                                             message: UntranslatedL10n.dialogPermissionCameraDescriptionIos,
                                              primaryButton: .init(title: L10n.commonSettings) { [weak self] in self?.appMediator.openAppSettings() },
                                              secondaryButton: .init(title: L10n.actionNotNow, role: .cancel, action: nil))
         case .pollEndConfirmation(let pollStartID):

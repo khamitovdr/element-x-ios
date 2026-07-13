@@ -20,6 +20,14 @@ internal nonisolated enum UntranslatedL10n {
   internal static var a11yVoiceMessageSwitchToVideoIos: String { return UntranslatedL10n.tr("Untranslated", "a11y_voice_message_switch_to_video_ios") }
   /// Video message
   internal static var commonVideoMessageIos: String { return UntranslatedL10n.tr("Untranslated", "common_video_message_ios") }
+  /// Grant camera access in Settings to record video messages.
+  internal static var dialogPermissionCameraDescriptionIos: String { return UntranslatedL10n.tr("Untranslated", "dialog_permission_camera_description_ios") }
+  /// %1$@ needs permission to use your camera
+  internal static func dialogPermissionCameraTitleIos(_ p1: Any) -> String {
+    return UntranslatedL10n.tr("Untranslated", "dialog_permission_camera_title_ios", String(describing: p1))
+  }
+  /// Failed uploading video message
+  internal static var errorFailedUploadingVideoMessageIos: String { return UntranslatedL10n.tr("Untranslated", "error_failed_uploading_video_message_ios") }
   /// Search
   internal static var screenHomeTabSearch: String { return UntranslatedL10n.tr("Untranslated", "screen_home_tab_search") }
   /// Search for chats and messages
