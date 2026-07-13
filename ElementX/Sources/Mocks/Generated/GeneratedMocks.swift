@@ -11115,6 +11115,54 @@ nonisolated class RoomThreadListServiceProxyMock: RoomThreadListServiceProxyProt
         }
     }
 }
+nonisolated class RoundVideoCacheMock: RoundVideoCacheProtocol, @unchecked Sendable {
+
+    //MARK: - urlForNewRecording
+
+    private let urlForNewRecordingCallsCountLock = NSLock()
+    private nonisolated(unsafe) var urlForNewRecordingUnderlyingCallsCount = 0
+    var urlForNewRecordingCallsCount: Int {
+        get { urlForNewRecordingCallsCountLock.withLock { urlForNewRecordingUnderlyingCallsCount } }
+        set { urlForNewRecordingCallsCountLock.withLock { urlForNewRecordingUnderlyingCallsCount = newValue } }
+    }
+    var urlForNewRecordingCalled: Bool {
+        return urlForNewRecordingCallsCount > 0
+    }
+
+    private let urlForNewRecordingReturnValueLock = NSLock()
+    private nonisolated(unsafe) var urlForNewRecordingUnderlyingReturnValue: URL!
+    var urlForNewRecordingReturnValue: URL! {
+        get { urlForNewRecordingReturnValueLock.withLock { urlForNewRecordingUnderlyingReturnValue } }
+        set { urlForNewRecordingReturnValueLock.withLock { urlForNewRecordingUnderlyingReturnValue = newValue } }
+    }
+    nonisolated(unsafe) var urlForNewRecordingClosure: (() -> URL)?
+
+    func urlForNewRecording() -> URL {
+        urlForNewRecordingCallsCountLock.withLock { urlForNewRecordingUnderlyingCallsCount += 1 }
+        if let urlForNewRecordingClosure = urlForNewRecordingClosure {
+            return urlForNewRecordingClosure()
+        } else {
+            return urlForNewRecordingReturnValue
+        }
+    }
+    //MARK: - clearCache
+
+    private let clearCacheCallsCountLock = NSLock()
+    private nonisolated(unsafe) var clearCacheUnderlyingCallsCount = 0
+    var clearCacheCallsCount: Int {
+        get { clearCacheCallsCountLock.withLock { clearCacheUnderlyingCallsCount } }
+        set { clearCacheCallsCountLock.withLock { clearCacheUnderlyingCallsCount = newValue } }
+    }
+    var clearCacheCalled: Bool {
+        return clearCacheCallsCount > 0
+    }
+    nonisolated(unsafe) var clearCacheClosure: (() -> Void)?
+
+    func clearCache() {
+        clearCacheCallsCountLock.withLock { clearCacheUnderlyingCallsCount += 1 }
+        clearCacheClosure?()
+    }
+}
 nonisolated class SearchServiceProxyMock: SearchServiceProxyProtocol, @unchecked Sendable {
     var resultsPublisher: CurrentValuePublisher<[SearchServiceResult], Never> {
         get { return underlyingResultsPublisher }
