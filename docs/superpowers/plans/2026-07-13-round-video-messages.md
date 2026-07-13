@@ -2565,6 +2565,9 @@ struct RoundVideoRoomTimelineView: View {
     @State private var didFail = false
     @State private var progress: Double = 0
 
+    // Stored so @State ticks don't rebuild the publisher on every body evaluation.
+    private let progressTimer = Timer.publish(every: 0.05, on: .main, in: .common).autoconnect()
+
     var body: some View {
         TimelineStyler(timelineItem: timelineItem) {
             content
@@ -2586,7 +2589,7 @@ struct RoundVideoRoomTimelineView: View {
             guard let item = notification.object as? AVPlayerItem, item === player?.currentItem else { return }
             finishPlayback()
         }
-        .onReceive(Timer.publish(every: 0.05, on: .main, in: .common).autoconnect()) { _ in
+        .onReceive(progressTimer) { _ in
             guard isPlaying, let player else { return }
 
             // The environment context isn't observed, so enforce the one-at-a-time rule
