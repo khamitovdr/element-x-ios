@@ -43,7 +43,6 @@ nonisolated class RoundVideoRecorder: NSObject, RoundVideoRecorderProtocol, @unc
     private var writerAudioInput: AVAssetWriterInput?
     private var pixelBufferAdaptor: AVAssetWriterInputPixelBufferAdaptor?
     private var sessionStartTime: CMTime?
-    private var lastVideoTime: CMTime?
     private let ciContext = CIContext()
     
     private var internalState = InternalRoundVideoRecorderState.stopped
@@ -158,9 +157,11 @@ nonisolated class RoundVideoRecorder: NSObject, RoundVideoRecorderProtocol, @unc
                         session.removeInput(videoDeviceInput)
                     }
                     try addVideoInput(to: session, position: newPosition)
+                    // Update the position before configuring the connection, which reads
+                    // `cameraPosition` to decide whether to mirror the image.
+                    cameraPosition = newPosition
                     configureVideoConnection()
                     session.commitConfiguration()
-                    cameraPosition = newPosition
                 } catch {
                     MXLog.error("Failed to flip the camera. \(error)")
                     session.commitConfiguration()
@@ -184,7 +185,6 @@ nonisolated class RoundVideoRecorder: NSObject, RoundVideoRecorderProtocol, @unc
         currentTime = 0
         recordingDuration = 0
         sessionStartTime = nil
-        lastVideoTime = nil
         
         let url = cache.urlForNewRecording()
         try? FileManager.default.removeItem(at: url)
@@ -304,6 +304,10 @@ nonisolated class RoundVideoRecorder: NSObject, RoundVideoRecorderProtocol, @unc
         
         recordingDuration = currentTime
         
+        // Computed before `finishWriting` starts so the completion below never has to
+        // capture the non-Sendable `writer` itself, only these Sendable snapshots.
+        let finishedWriterID = ObjectIdentifier(writer)
+        
         writer.finishWriting { [weak self] in
             guard let self else {
                 completion()
@@ -311,12 +315,14 @@ nonisolated class RoundVideoRecorder: NSObject, RoundVideoRecorderProtocol, @unc
             }
             dispatchQueue.async { [weak self] in
                 defer { completion() }
-                // Re-read from the stored property rather than capturing the outer
-                // `writer` local, which would carry the non-Sendable AVAssetWriter
-                // across this @Sendable dispatch closure.
-                guard let self, let writer = self.writer else { return }
-                if writer.status != .completed {
-                    MXLog.error("Round video writer failed: \(String(describing: writer.error))")
+                // A newer recording may have replaced `self.writer` by the time this
+                // completion reaches the queue (e.g. cancel immediately followed by a
+                // new recording). Only act on it if it's still the writer we finished.
+                guard let self, let currentWriter = self.writer, ObjectIdentifier(currentWriter) == finishedWriterID else {
+                    return
+                }
+                if currentWriter.status != .completed {
+                    MXLog.error("Round video writer failed: \(String(describing: currentWriter.error))")
                     setInternalState(.error(.writerFailure))
                 } else {
                     setInternalState(.stopped)
@@ -341,23 +347,29 @@ nonisolated class RoundVideoRecorder: NSObject, RoundVideoRecorderProtocol, @unc
     // MARK: - Internal state
     
     private func setInternalState(_ state: InternalRoundVideoRecorderState) {
-        MXLog.debug("round video recorder state: \(internalState) -> \(state)")
-        internalState = state
-        switch state {
-        case .recording:
-            actionsSubject.send(.didStartRecording)
-        case .stopped:
-            if recordingCancelled {
-                break
-            } else if let recordingURL, recordingDuration > 0 {
-                actionsSubject.send(.didStopRecording(url: recordingURL, duration: recordingDuration))
-            } else {
-                // Nothing usable was written (e.g. stopped before the first frame) —
-                // fail so the composer resets instead of waiting for a preview.
-                actionsSubject.send(.didFailWithError(error: .writerFailure))
+        dispatchQueue.async { [weak self] in
+            guard let self else { return }
+            MXLog.debug("round video recorder state: \(internalState) -> \(state)")
+            internalState = state
+            switch state {
+            case .recording:
+                actionsSubject.send(.didStartRecording)
+            case .stopped:
+                if recordingCancelled {
+                    break
+                } else if let recordingURL, recordingDuration > 0 {
+                    actionsSubject.send(.didStopRecording(url: recordingURL, duration: recordingDuration))
+                } else {
+                    // Nothing usable was written (e.g. stopped before the first frame) —
+                    // fail so the composer resets instead of waiting for a preview.
+                    actionsSubject.send(.didFailWithError(error: .writerFailure))
+                }
+            case .error(let error):
+                // Cancelling must stay fully silent — no failure toast for a deliberate cancel.
+                if !recordingCancelled {
+                    actionsSubject.send(.didFailWithError(error: error))
+                }
             }
-        case .error(let error):
-            actionsSubject.send(.didFailWithError(error: error))
         }
     }
     
@@ -435,7 +447,6 @@ nonisolated extension RoundVideoRecorder: AVCaptureVideoDataOutputSampleBufferDe
                          colorSpace: CGColorSpaceCreateDeviceRGB())
         
         pixelBufferAdaptor.append(outputBuffer, withPresentationTime: presentationTime)
-        lastVideoTime = presentationTime
         
         if let sessionStartTime {
             currentTime = presentationTime.seconds - sessionStartTime.seconds
