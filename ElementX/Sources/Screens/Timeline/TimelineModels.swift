@@ -74,6 +74,8 @@ enum TimelineViewAction {
     case handlePasteOrDrop(providers: [NSItemProvider])
     case handlePollAction(TimelineViewPollAction)
     case handleAudioPlayerAction(TimelineAudioPlayerAction)
+    case roundVideoPlaybackStarted(itemID: TimelineItemIdentifier)
+    case roundVideoPlaybackStopped(itemID: TimelineItemIdentifier)
     
     case stopLiveLocationSharing(TimelineItemIdentifier)
     
@@ -132,6 +134,9 @@ struct TimelineViewState: BindableState {
     
     /// A closure providing the associated audio player state for an item in the timeline.
     var audioPlayerStateProvider: (@MainActor (_ itemId: TimelineItemIdentifier) -> AudioPlayerState?)?
+    
+    /// The round video timeline item currently playing inline, if any. Only one plays at a time.
+    var currentlyPlayingRoundVideoItemID: TimelineItemIdentifier?
     
     /// A closure that updates the associated pill context
     var pillContextUpdater: (@MainActor (PillContext) -> Void)?
@@ -216,6 +221,7 @@ struct ReadReceiptSummaryInfo: Identifiable {
 
 enum TimelineAlertInfoType: Hashable {
     case audioRecodingPermissionError
+    case cameraRecordingPermissionError
     case pollEndConfirmation(String)
     case sendingFailed
     case encryptionAuthenticity(String)

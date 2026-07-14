@@ -106,7 +106,7 @@ struct ComposerToolbar: View {
                     sendButton
                         .scaledPadding(.vertical, trailingButtonVerticalPadding, relativeTo: .compound.headingLG)
                 } else {
-                    voiceMessageRecordingButton(mode: context.viewState.isVoiceMessageModeActivated ? .recording : .idle)
+                    mediaRecordingButton
                         .scaledPadding(.vertical, trailingButtonVerticalPadding, relativeTo: .compound.headingLG)
                 }
             }
@@ -140,9 +140,9 @@ struct ComposerToolbar: View {
                 }
                 messageComposer
             }
-            .opacity(context.viewState.isVoiceMessageModeActivated ? 0 : 1)
+            .opacity(context.viewState.isMediaRecordingModeActivated ? 0 : 1)
             
-            if context.viewState.isVoiceMessageModeActivated {
+            if context.viewState.isMediaRecordingModeActivated {
                 voiceMessageContent
                     .fixedSize(horizontal: false, vertical: true)
             }
@@ -290,22 +290,51 @@ struct ComposerToolbar: View {
                 voiceMessagePreviewComposer(audioPlayerState: state, waveform: waveform)
             }
             .disabled(isUploading)
+        case .recordRoundVideo(let state):
+            topBarLayout {
+                roundVideoTrashButton
+                    .scaledPadding(.vertical, buttonVerticalPadding, relativeTo: .compound.headingLG)
+                RoundVideoRecordingStatusBar(recorderState: state)
+            }
+        case .previewRoundVideo(_, let duration, let isUploading):
+            topBarLayout {
+                roundVideoTrashButton
+                    .scaledPadding(.vertical, buttonVerticalPadding, relativeTo: .compound.headingLG)
+                RoundVideoPreviewStatusBar(duration: duration)
+            }
+            .disabled(isUploading)
         default:
             EmptyView()
         }
     }
     
-    private func voiceMessageRecordingButton(mode: VoiceMessageRecordingButtonMode) -> some View {
-        VoiceMessageRecordingButton(mode: mode) {
-            context.send(viewAction: .voiceMessage(.startRecording))
+    private var mediaRecordingButton: some View {
+        MediaRecordingButton(recordingMode: context.viewState.mediaRecordingMode,
+                             isRecording: context.viewState.isMediaRecordingModeActivated) {
+            context.send(viewAction: .toggleRecordingMode)
+        } startRecording: {
+            switch context.viewState.mediaRecordingMode {
+            case .voice: context.send(viewAction: .voiceMessage(.startRecording))
+            case .roundVideo: context.send(viewAction: .roundVideo(.startRecording))
+            }
         } stopRecording: {
-            context.send(viewAction: .voiceMessage(.stopRecording))
+            switch context.viewState.mediaRecordingMode {
+            case .voice: context.send(viewAction: .voiceMessage(.stopRecording))
+            case .roundVideo: context.send(viewAction: .roundVideo(.stopRecording))
+            }
         }
     }
     
     private var voiceMessageTrashButton: some View {
         VoiceMessageTrashButton {
             context.send(viewAction: .voiceMessage(.deleteRecording))
+        }
+        .accessibilityLabel(L10n.a11yDelete)
+    }
+    
+    private var roundVideoTrashButton: some View {
+        VoiceMessageTrashButton {
+            context.send(viewAction: .roundVideo(.deleteRecording))
         }
         .accessibilityLabel(L10n.a11yDelete)
     }
@@ -387,6 +416,8 @@ struct ComposerToolbar_Previews: PreviewProvider, TestablePreview {
     static let voiceMessageRecordingViewModel = ComposerToolbarViewModel.mock(mockMode: .recordVoiceMessage)
     static let voiceMessagePreviewViewModel = ComposerToolbarViewModel.mock(mockMode: .previewVoiceMessage(isUploading: false))
     static let voiceMessageUploadingViewModel = ComposerToolbarViewModel.mock(mockMode: .previewVoiceMessage(isUploading: true))
+    static let roundVideoRecordingViewModel = ComposerToolbarViewModel.mock(mockMode: .recordRoundVideo)
+    static let roundVideoPreviewViewModel = ComposerToolbarViewModel.mock(mockMode: .previewRoundVideo(isUploading: false))
     static let replyLoadingViewModel = ComposerToolbarViewModel.mock(mockMode: .reply(isLoading: true))
     static let replyLoadedViewModel = ComposerToolbarViewModel.mock(mockMode: .reply(isLoading: false))
     static let suggestionsViewModel = ComposerToolbarViewModel.mock(hasSuggestions: true)
@@ -403,6 +434,9 @@ struct ComposerToolbar_Previews: PreviewProvider, TestablePreview {
             ComposerToolbar(context: voiceMessagePreviewViewModel.context)
             ComposerToolbar(context: voiceMessageUploadingViewModel.context)
                 .padding(.bottom)
+            
+            ComposerToolbar(context: roundVideoRecordingViewModel.context)
+            ComposerToolbar(context: roundVideoPreviewViewModel.context)
             
             ComposerToolbar(context: disabledViewModel.context)
         }

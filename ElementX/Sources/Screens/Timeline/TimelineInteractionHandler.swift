@@ -22,6 +22,7 @@ enum TimelineInteractionHandlerAction {
     case showDebugInfo(TimelineItemDebugInfo)
     
     case displayAudioRecorderPermissionError
+    case displayCameraPermissionError
     case displayErrorToast(String)
     
     case viewInRoomTimeline(eventID: String)
@@ -37,6 +38,7 @@ class TimelineInteractionHandler {
     private let userSession: UserSessionProtocol
     private let mediaPlayerProvider: MediaPlayerProviderProtocol
     private let voiceMessageRecorder: VoiceMessageRecorderProtocol
+    private let roundVideoRecorder: RoundVideoRecorderProtocol
     private let userIndicatorController: UserIndicatorControllerProtocol
     private let appMediator: AppMediatorProtocol
     private let appSettings: AppSettings
@@ -57,6 +59,12 @@ class TimelineInteractionHandler {
         }
     }
     
+    private var roundVideoRecorderObserver: AnyCancellable? {
+        didSet {
+            appMediator.setIdleTimerDisabled(roundVideoRecorderObserver != nil)
+        }
+    }
+    
     private var resumeVoiceMessagePlaybackAfterScrubbing = false
     
     init(roomProxy: JoinedRoomProxyProtocol,
@@ -64,6 +72,7 @@ class TimelineInteractionHandler {
          userSession: UserSessionProtocol,
          mediaPlayerProvider: MediaPlayerProviderProtocol,
          voiceMessageRecorder: VoiceMessageRecorderProtocol,
+         roundVideoRecorder: RoundVideoRecorderProtocol = RoundVideoRecorder(),
          userIndicatorController: UserIndicatorControllerProtocol,
          appMediator: AppMediatorProtocol,
          appSettings: AppSettings,
@@ -76,6 +85,7 @@ class TimelineInteractionHandler {
         self.userSession = userSession
         self.mediaPlayerProvider = mediaPlayerProvider
         self.voiceMessageRecorder = voiceMessageRecorder
+        self.roundVideoRecorder = roundVideoRecorder
         self.userIndicatorController = userIndicatorController
         self.appMediator = appMediator
         self.appSettings = appSettings
@@ -411,6 +421,82 @@ class TimelineInteractionHandler {
                 await startPlayingRecordedVoiceMessage()
             }
         }
+    }
+    
+    // MARK: Round video messages
+    
+    private func handleRoundVideoRecorderAction(_ action: RoundVideoRecorderAction) {
+        MXLog.debug("handling round video recorder action: \(action)")
+        switch action {
+        case .didStartRecording:
+            let recorderState = RoundVideoRecorderState()
+            recorderState.attachRecorder(roundVideoRecorder)
+            actionsSubject.send(.composer(action: .setMode(mode: .recordRoundVideo(state: recorderState))))
+        case .didStopRecording(let url, let duration):
+            actionsSubject.send(.composer(action: .setMode(mode: .previewRoundVideo(url: url, duration: duration, isUploading: false))))
+            roundVideoRecorderObserver = nil
+        case .didFailWithError(let error):
+            switch error {
+            case .cameraPermissionNotGranted:
+                MXLog.info("permission to record round video has not been granted.")
+                actionsSubject.send(.displayCameraPermissionError)
+            case .microphonePermissionNotGranted:
+                MXLog.info("permission to record round video has not been granted.")
+                actionsSubject.send(.displayAudioRecorderPermissionError)
+            default:
+                MXLog.error("failed to record round video. \(error)")
+            }
+            actionsSubject.send(.composer(action: .setMode(mode: .default)))
+            roundVideoRecorderObserver = nil
+        }
+    }
+    
+    func startRecordingRoundVideo() async {
+        roundVideoRecorderObserver = roundVideoRecorder.actions
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] action in
+                self?.handleRoundVideoRecorderAction(action)
+            }
+        
+        await roundVideoRecorder.startRecording()
+    }
+    
+    func stopRecordingRoundVideo() async {
+        await roundVideoRecorder.stopRecording()
+    }
+    
+    func deleteCurrentRoundVideo() async {
+        if roundVideoRecorder.isRecording {
+            await roundVideoRecorder.cancelRecording()
+        } else {
+            await roundVideoRecorder.deleteRecording()
+        }
+        
+        roundVideoRecorderObserver = nil
+        actionsSubject.send(.composer(action: .setMode(mode: .default)))
+    }
+    
+    func sendCurrentRoundVideo() async {
+        guard let recordingURL = roundVideoRecorder.recordingURL else {
+            actionsSubject.send(.displayErrorToast(UntranslatedL10n.errorFailedUploadingVideoMessageIos))
+            return
+        }
+        let duration = roundVideoRecorder.recordingDuration
+        
+        actionsSubject.send(.composer(action: .setMode(mode: .previewRoundVideo(url: recordingURL, duration: duration, isUploading: true))))
+        
+        switch await roundVideoRecorder.sendRoundVideo(timelineController: timelineController) {
+        case .success:
+            await deleteCurrentRoundVideo()
+        case .failure(let error):
+            MXLog.error("failed to send the round video. \(error)")
+            actionsSubject.send(.composer(action: .setMode(mode: .previewRoundVideo(url: recordingURL, duration: duration, isUploading: false))))
+            actionsSubject.send(.displayErrorToast(UntranslatedL10n.errorFailedUploadingVideoMessageIos))
+        }
+    }
+    
+    func flipRoundVideoCamera() async {
+        await roundVideoRecorder.flipCamera()
     }
     
     // MARK: Audio Playback

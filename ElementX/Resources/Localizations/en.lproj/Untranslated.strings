@@ -1,3 +1,12 @@
+"a11y_video_message_flip_camera_ios" = "Flip camera";
+"a11y_video_message_record_ios" = "Record video message";
+"a11y_video_message_switch_to_voice_ios" = "Switch to voice message";
+"a11y_voice_message_switch_to_video_ios" = "Switch to video message";
+"common_video_message_ios" = "Video message";
+"dialog_permission_camera_description_ios" = "Grant camera access in Settings to record video messages.";
+/* Localazy: change %1$@ -> %1$s */
+"dialog_permission_camera_title_ios" = "%1$@ needs permission to use your camera";
+"error_failed_uploading_video_message_ios" = "Failed uploading video message";
 "screen_home_tab_search" = "Search";
 "screen_search_empty_state_message" = "Search for chats and messages";
 "screen_search_empty_state_title" = "Start searching...";

@@ -4,10 +4,10 @@ settings:
   APP_GROUP_IDENTIFIER: group.io.element
   BASE_BUNDLE_IDENTIFIER: com.khamitovdr.elementx
   ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: "colors/accent-color"
-  # FREE-ACCOUNT: set this to your Personal Team ID (Xcode > Settings > Accounts) to build on
-  # a device. Empty is fine for the Simulator, which does not enforce code signing.
+  # FREE-ACCOUNT: this is a free Personal Team, so provisioning profiles expire after 7 days
+  # and the app must be rebuilt from Xcode once they do.
   # Element's own team was: 7J4U792NQT
-  DEVELOPMENT_TEAM: ""
+  DEVELOPMENT_TEAM: 8KW3KJMBUY
   IS_NIGHTLY_BUILD: false
 
   # Optional configuration to load accounts from Element Classic.

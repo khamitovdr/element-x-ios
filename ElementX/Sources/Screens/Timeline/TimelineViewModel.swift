@@ -213,6 +213,13 @@ class TimelineViewModel: TimelineViewModelType, TimelineViewModelProtocol {
             handlePollAction(pollAction)
         case .handleAudioPlayerAction(let audioPlayerAction):
             handleAudioPlayerAction(audioPlayerAction)
+        case .roundVideoPlaybackStarted(let itemID):
+            state.currentlyPlayingRoundVideoItemID = itemID
+            Task { await mediaPlayerProvider.detachAllStates(except: nil) }
+        case .roundVideoPlaybackStopped(let itemID):
+            if state.currentlyPlayingRoundVideoItemID == itemID {
+                state.currentlyPlayingRoundVideoItemID = nil
+            }
         case .stopLiveLocationSharing(let id):
             state.stoppedLiveLocationIDs.insert(id)
             Task { await stopLiveLocationSharing() }
@@ -256,6 +263,8 @@ class TimelineViewModel: TimelineViewModelType, TimelineViewModelProtocol {
             composerFocusedSubject.send(isFocused)
         case .voiceMessage(let voiceMessageAction):
             processVoiceMessageAction(voiceMessageAction)
+        case .roundVideo(let roundVideoAction):
+            processRoundVideoAction(roundVideoAction)
         case .contentChanged(let isEmpty):
             guard appSettings.sharePresence else {
                 return
@@ -389,6 +398,7 @@ class TimelineViewModel: TimelineViewModelType, TimelineViewModelProtocol {
     private func handleAudioPlayerAction(_ action: TimelineAudioPlayerAction) {
         switch action {
         case .playPause(let itemID):
+            state.currentlyPlayingRoundVideoItemID = nil
             Task { await timelineInteractionHandler.playPauseAudio(for: itemID) }
         case .seek(let itemID, let progress):
             Task { await timelineInteractionHandler.seekAudio(for: itemID, progress: progress) }
@@ -400,6 +410,7 @@ class TimelineViewModel: TimelineViewModelType, TimelineViewModelProtocol {
     private func processVoiceMessageAction(_ action: ComposerToolbarVoiceMessageAction) {
         switch action {
         case .startRecording:
+            state.currentlyPlayingRoundVideoItemID = nil
             Task {
                 await mediaPlayerProvider.detachAllStates(except: nil)
                 await timelineInteractionHandler.startRecordingVoiceMessage()
@@ -420,6 +431,28 @@ class TimelineViewModel: TimelineViewModelType, TimelineViewModelProtocol {
             Task { await timelineInteractionHandler.seekRecordedVoiceMessage(to: progress) }
         case .scrubPlayback(let scrubbing):
             Task { await timelineInteractionHandler.scrubVoiceMessagePlayback(scrubbing: scrubbing) }
+        }
+    }
+    
+    private func processRoundVideoAction(_ action: ComposerToolbarRoundVideoAction) {
+        switch action {
+        case .startRecording:
+            state.currentlyPlayingRoundVideoItemID = nil
+            Task {
+                await mediaPlayerProvider.detachAllStates(except: nil)
+                await timelineInteractionHandler.startRecordingRoundVideo()
+            }
+        case .stopRecording:
+            Task { await timelineInteractionHandler.stopRecordingRoundVideo() }
+        case .deleteRecording:
+            Task { await timelineInteractionHandler.deleteCurrentRoundVideo() }
+        case .flipCamera:
+            Task { await timelineInteractionHandler.flipRoundVideoCamera() }
+        case .previewPlaybackStarted:
+            state.currentlyPlayingRoundVideoItemID = nil
+            Task { await mediaPlayerProvider.detachAllStates(except: nil) }
+        case .send:
+            Task { await timelineInteractionHandler.sendCurrentRoundVideo() }
         }
     }
     
@@ -511,6 +544,8 @@ class TimelineViewModel: TimelineViewModelType, TimelineViewModelProtocol {
                     actionsSubject.send(.composer(action: action))
                 case .displayAudioRecorderPermissionError:
                     displayAlert(.audioRecodingPermissionError)
+                case .displayCameraPermissionError:
+                    displayAlert(.cameraRecordingPermissionError)
                 case .displayErrorToast(let title):
                     displayErrorToast(title)
                 case .displayEmojiPicker(let itemID, let selectedEmojis):
@@ -796,7 +831,7 @@ class TimelineViewModel: TimelineViewModelType, TimelineViewModelProtocol {
                                                      inReplyToEventID: nil,
                                                      intentionalMentions: intentionalMentions)
             }
-        case .recordVoiceMessage, .previewVoiceMessage:
+        case .recordVoiceMessage, .previewVoiceMessage, .recordRoundVideo, .previewRoundVideo:
             fatalError("invalid composer mode.")
         }
         
@@ -1070,6 +1105,12 @@ class TimelineViewModel: TimelineViewModelType, TimelineViewModelProtocol {
             state.bindings.alertInfo = .init(id: type,
                                              title: L10n.dialogPermissionMicrophoneTitleIos(InfoPlistReader.main.bundleDisplayName),
                                              message: L10n.dialogPermissionMicrophoneDescriptionIos,
+                                             primaryButton: .init(title: L10n.commonSettings) { [weak self] in self?.appMediator.openAppSettings() },
+                                             secondaryButton: .init(title: L10n.actionNotNow, role: .cancel, action: nil))
+        case .cameraRecordingPermissionError:
+            state.bindings.alertInfo = .init(id: type,
+                                             title: UntranslatedL10n.dialogPermissionCameraTitleIos(InfoPlistReader.main.bundleDisplayName),
+                                             message: UntranslatedL10n.dialogPermissionCameraDescriptionIos,
                                              primaryButton: .init(title: L10n.commonSettings) { [weak self] in self?.appMediator.openAppSettings() },
                                              secondaryButton: .init(title: L10n.actionNotNow, role: .cancel, action: nil))
         case .pollEndConfirmation(let pollStartID):

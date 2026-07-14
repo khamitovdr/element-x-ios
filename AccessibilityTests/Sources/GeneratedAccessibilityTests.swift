@@ -355,6 +355,10 @@ extension AccessibilityTests {
         try await performAccessibilityAudit(named: "MediaEventsTimelineScreen_Previews")
     }
 
+    func testMediaRecordingButton() async throws {
+        try await performAccessibilityAudit(named: "MediaRecordingButton_Previews")
+    }
+
     func testMediaUploadPreviewScreen() async throws {
         try await performAccessibilityAudit(named: "MediaUploadPreviewScreen_Previews")
     }
@@ -601,6 +605,18 @@ extension AccessibilityTests {
 
     func testRoomThreadListScreen() async throws {
         try await performAccessibilityAudit(named: "RoomThreadListScreen_Previews")
+    }
+
+    func testRoundVideoComposerBars() async throws {
+        try await performAccessibilityAudit(named: "RoundVideoComposerBars_Previews")
+    }
+
+    func testRoundVideoComposerOverlay() async throws {
+        try await performAccessibilityAudit(named: "RoundVideoComposerOverlay_Previews")
+    }
+
+    func testRoundVideoRoomTimelineView() async throws {
+        try await performAccessibilityAudit(named: "RoundVideoRoomTimelineView_Previews")
     }
 
     func testSFNumberedListView() async throws {
@@ -877,10 +893,6 @@ extension AccessibilityTests {
 
     func testVoiceMessagePreviewComposer() async throws {
         try await performAccessibilityAudit(named: "VoiceMessagePreviewComposer_Previews")
-    }
-
-    func testVoiceMessageRecordingButton() async throws {
-        try await performAccessibilityAudit(named: "VoiceMessageRecordingButton_Previews")
     }
 
     func testVoiceMessageRecordingComposer() async throws {

@@ -243,6 +243,7 @@ final class RoomScreenCoordinator: CoordinatorProtocol {
         
         return AnyView(RoomScreen(context: roomViewModel.context,
                                   timelineContext: timelineViewModel.context,
+                                  composerToolbarContext: composerViewModel.context,
                                   composerToolbar: composerToolbar))
     }
 }

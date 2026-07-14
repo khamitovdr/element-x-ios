@@ -91,7 +91,7 @@ struct MessageComposer: View {
             MessageComposerReplyHeader(replyDetails: replyDetails, action: cancellationAction)
         case .edit(_, let editType):
             MessageComposerEditHeader(editType: editType, action: cancellationAction)
-        case .recordVoiceMessage, .previewVoiceMessage, .default:
+        case .recordVoiceMessage, .previewVoiceMessage, .recordRoundVideo, .previewRoundVideo, .default:
             EmptyView()
         }
     }
