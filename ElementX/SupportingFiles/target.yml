@@ -230,8 +230,10 @@ targets:
         fi
 
     dependencies:
-    - target: NSE
-    - target: ShareExtension
+    # FREE-ACCOUNT: extension targets are not built (see project.yml). The app target still
+    # compiles ../../NSE/Sources directly, so unit tests continue to link NSE code.
+    # - target: NSE
+    # - target: ShareExtension
     - target: MatrixRustSDKMocks
     - package: MatrixRustSDK
       embed: true
