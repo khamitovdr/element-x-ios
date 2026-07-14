@@ -113,21 +113,27 @@ targets:
     entitlements:
       path: ElementX.entitlements
       properties:
-        aps-environment: development
-        com.apple.developer.associated-domains:
-        - applinks:element.io
-        - applinks:app.element.io
-        - applinks:staging.element.io
-        - applinks:develop.element.io
-        - applinks:mobile.element.io
-        - applinks:matrix.to
+        # FREE-ACCOUNT: push requires a paid Apple Developer Program membership.
+        # aps-environment: development
+        # FREE-ACCOUNT: associated domains require a paid membership. Only needed for the
+        # OAuth HTTPS callback; unused when signing in to a homeserver with password auth.
+        # com.apple.developer.associated-domains:
+        # - applinks:element.io
+        # - applinks:app.element.io
+        # - applinks:staging.element.io
+        # - applinks:develop.element.io
+        # - applinks:mobile.element.io
+        # - applinks:matrix.to
         # - applinks:localhost?mode=developer # developer mode only works with https (but self-signed is fine).
-        - webcredentials:*.element.io
-        com.apple.developer.usernotifications.communication: true
+        # - webcredentials:*.element.io
+        # FREE-ACCOUNT: communication notifications require a paid membership.
+        # com.apple.developer.usernotifications.communication: true
         com.apple.security.app-sandbox: true
-        com.apple.security.application-groups:
-        - $(APP_GROUP_IDENTIFIER)
-        - $(CLASSIC_APP_GROUP_IDENTIFIER)
+        # FREE-ACCOUNT: App Groups require a paid membership. URL.appGroupContainerDirectory
+        # already falls back to the app's own container when the group is unavailable.
+        # com.apple.security.application-groups:
+        # - $(APP_GROUP_IDENTIFIER)
+        # - $(CLASSIC_APP_GROUP_IDENTIFIER)
         com.apple.security.network.client: true
         keychain-access-groups:
         - $(KEYCHAIN_ACCESS_GROUP_IDENTIFIER)
@@ -225,8 +231,10 @@ targets:
         fi
 
     dependencies:
-    - target: NSE
-    - target: ShareExtension
+    # FREE-ACCOUNT: extension targets are not built (see project.yml). The app target still
+    # compiles ../../NSE/Sources directly, so unit tests continue to link NSE code.
+    # - target: NSE
+    # - target: ShareExtension
     - target: MatrixRustSDKMocks
     - package: MatrixRustSDK
       embed: true

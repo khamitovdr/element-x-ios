@@ -60,8 +60,10 @@ settings:
 include:
 - path: app.yml
 - path: ElementX/SupportingFiles/target.yml
-- path: NSE/SupportingFiles/target.yml
-- path: ShareExtension/SupportingFiles/target.yml
+# FREE-ACCOUNT: the NSE and ShareExtension both require App Groups, which a Personal Team
+# cannot sign. The NSE is inert without push notifications. Re-include both to publish.
+# - path: NSE/SupportingFiles/target.yml
+# - path: ShareExtension/SupportingFiles/target.yml
 - path: SDKMocks/SupportingFiles/target.yml
 - path: UnitTests/SupportingFiles/target.yml
 - path: PreviewTests/SupportingFiles/target.yml

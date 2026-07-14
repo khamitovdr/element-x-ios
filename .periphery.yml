@@ -7,8 +7,9 @@ schemes:
 - IntegrationTests
 targets:
 - ElementX
-- NSE
-- ShareExtension
+# FREE-ACCOUNT: these targets are not built (see project.yml).
+# - NSE
+# - ShareExtension
 - UnitTests
 - PreviewTests
 - UITests
