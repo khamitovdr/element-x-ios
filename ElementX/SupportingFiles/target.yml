@@ -124,6 +124,7 @@ targets:
         # - applinks:develop.element.io
         # - applinks:mobile.element.io
         # - applinks:matrix.to
+        # - applinks:localhost?mode=developer # developer mode only works with https (but self-signed is fine).
         # - webcredentials:*.element.io
         # FREE-ACCOUNT: communication notifications require a paid membership.
         # com.apple.developer.usernotifications.communication: true
