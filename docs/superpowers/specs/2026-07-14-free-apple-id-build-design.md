@@ -139,10 +139,25 @@ make silently.
 
 ### Git shape
 
-The whole change is one commit at the tip of the working branch, so that:
+The change lands on a `free-apple-id-build` branch cut from `develop`, and is merged
+into the **fork's own** `develop` by pull request. The feature branch
+`round-video-messages` is then rebased onto the updated `develop`, so the build
+configuration sits beneath the feature work rather than tangled through it.
 
-- Upstream merges conflict only in the four yml files, each with small hunks.
-- Publishing means dropping or reverting a single, clearly-titled commit.
+The branch carries one commit per concern (entitlements, extension targets, fork
+identity) rather than a single squashed commit, matching this repo's convention of
+"no tiny commits, no massive commits".
+
+Two properties this preserves:
+
+- Upstream merges conflict only in the three yml files, each with small hunks.
+- Publishing means reverting a short, clearly-titled run of commits — or simply
+  following the `FREE-ACCOUNT` markers, which is the primary undo path.
+
+The pull request must target `khamitovdr/element-x-ios`, **never** `element-hq/element-x-ios`.
+`gh pr create` defaults its base to the upstream parent of a fork, so every invocation
+must pass `--repo khamitovdr/element-x-ios` explicitly. This configuration is
+fork-local and must never be proposed to the upstream project.
 
 ## Prerequisite
 
