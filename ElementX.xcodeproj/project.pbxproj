@@ -7244,31 +7244,31 @@
 				ORGANIZATIONNAME = Element;
 				TargetAttributes = {
 					0E28CD62691FDBC63147D5E3 = {
-						DevelopmentTeam = "";
+						DevelopmentTeam = 8KW3KJMBUY;
 						TestTargetID = C0FAEB81CFD9776CD78CE489;
 					};
 					32C23C8D224D46EFE62AFAD0 = {
-						DevelopmentTeam = "";
+						DevelopmentTeam = 8KW3KJMBUY;
 					};
 					676A87694F0F247B2AF1A142 = {
-						DevelopmentTeam = "";
+						DevelopmentTeam = 8KW3KJMBUY;
 					};
 					7A17BE29BAC81ADBAC6349D9 = {
-						DevelopmentTeam = "";
+						DevelopmentTeam = 8KW3KJMBUY;
 					};
 					C0C687DE1D270F9895FEE186 = {
-						DevelopmentTeam = "";
+						DevelopmentTeam = 8KW3KJMBUY;
 						TestTargetID = C0FAEB81CFD9776CD78CE489;
 					};
 					C0FAEB81CFD9776CD78CE489 = {
 						DevelopmentTeam = "$(DEVELOPMENT_TEAM)";
 					};
 					D3DB351B7FBE0F49649171FC = {
-						DevelopmentTeam = "";
+						DevelopmentTeam = 8KW3KJMBUY;
 						TestTargetID = C0FAEB81CFD9776CD78CE489;
 					};
 					F8E276FD6DC43EADB85241BC = {
-						DevelopmentTeam = "";
+						DevelopmentTeam = 8KW3KJMBUY;
 					};
 				};
 			};
@@ -9435,7 +9435,7 @@
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 8KW3KJMBUY;
 				ENABLE_BITCODE = NO;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -9510,7 +9510,7 @@
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = dwarf;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 8KW3KJMBUY;
 				ENABLE_BITCODE = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
