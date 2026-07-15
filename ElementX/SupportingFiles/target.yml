@@ -254,7 +254,6 @@ targets:
     - package: LRUCache
     - package: Mantis
     - package: MapLibre
-    - package: PostHog
     - package: SwiftState
     - package: GZIP
     - package: Sentry

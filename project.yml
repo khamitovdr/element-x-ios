@@ -149,9 +149,6 @@ packages:
   MapLibre:
     url: https://github.com/maplibre/maplibre-gl-native-distribution
     minorVersion: 6.27.0
-  PostHog:
-    url: https://github.com/PostHog/posthog-ios
-    minorVersion: 3.61.1
   Sentry:
     url: https://github.com/getsentry/sentry-cocoa
     minorVersion: 9.18.0

@@ -106,9 +106,9 @@ class AppCoordinator: AppCoordinatorProtocol, AuthenticationFlowCoordinatorDeleg
         
         appRouteURLParser = AppRouteURLParser(appSettings: appSettings)
         
-        let posthogAnalyticsClient = PostHogAnalyticsClient()
-        posthogAnalyticsClient.updateSuperProperties(AnalyticsEvent.SuperProperties(appPlatform: .EXI, cryptoSDK: .Rust, cryptoSDKVersion: sdkGitSha()))
-        analyticsService = AnalyticsService(client: posthogAnalyticsClient, appSettings: appSettings)
+        let noOpAnalyticsClient = NoOpAnalyticsClient()
+        noOpAnalyticsClient.updateSuperProperties(AnalyticsEvent.SuperProperties(appPlatform: .EXI, cryptoSDK: .Rust, cryptoSDKVersion: sdkGitSha()))
+        analyticsService = AnalyticsService(client: noOpAnalyticsClient, appSettings: appSettings)
         
         userIndicatorController = UserIndicatorController()
         

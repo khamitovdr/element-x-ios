@@ -33,7 +33,6 @@ targets:
     - package: KeychainAccess
     - package: Kingfisher
     - package: KZFileWatchers
-    - package: PostHog
     - package: SwiftState
     - package: GZIP
     - package: Sentry
