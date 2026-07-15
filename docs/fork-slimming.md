@@ -60,6 +60,17 @@ place (nothing deleted it) but is now dead code — no remaining file
 references it after `LocationAnnotationView` was removed. Safe to delete
 in a follow-up if it starts bit-rotting; not required for merges to succeed.
 
+## Fork branding (Neutrino)
+The fork ships its own name and icon; both permanently diverge from upstream.
+- `app.yml`: `APP_DISPLAY_NAME` and `PRODUCTION_APP_NAME` are both `Neutrino`
+  (upstream: `Element X` / `Element`). On conflict, keep `Neutrino`. These
+  two values drive every user-visible name — no source strings are patched.
+- Icon: upstream's `ElementX/Resources/AppIcon.icon` (Icon Composer bundle)
+  is **replaced** by `ElementX/Resources/Assets.xcassets/AppIcon.appiconset`
+  (flat light/dark/tinted 1024² PNGs). `ASSETCATALOG_COMPILER_APPICON_NAME`
+  stays `AppIcon`. If an upstream merge re-adds `AppIcon.icon`, **delete it
+  again** — two assets named `AppIcon` fail the asset-catalog build.
+
 ## After every upstream merge
 1. `grep -rn 'import MapLibre\|import PostHog\|import Sentry' ElementX UnitTests UITests` → fix new hits (stub or delete).
 2. `xcodegen && build` — compiler finds signature drift (e.g. AppSettings.override), and regenerates `project.pbxproj`/`Package.resolved`/`GeneratedMocks.swift` so those generated/committed files don't need manual conflict resolution beyond what step 1 fixes at the source level.
