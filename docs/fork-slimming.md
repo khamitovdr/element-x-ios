@@ -18,6 +18,7 @@ values this fork nils out. Treat it like any other row in the table below.
 ## Upstream files edited (conflict candidates)
 | File | Exclusion to re-apply |
 |---|---|
+| .github/workflows/unit-tests.yml | Codecov coverage upload non-fatal (no CODECOV_TOKEN on the fork) |
 | project.yml | MapLibre, PostHog, Sentry package blocks removed |
 | ElementX/SupportingFiles/target.yml | MapLibre/PostHog/Sentry package links removed |
 | UITests/SupportingFiles/target.yml | PostHog/Sentry links removed |
@@ -63,3 +64,18 @@ in a follow-up if it starts bit-rotting; not required for merges to succeed.
 1. `grep -rn 'import MapLibre\|import PostHog\|import Sentry' ElementX UnitTests UITests` → fix new hits (stub or delete).
 2. `xcodegen && build` — compiler finds signature drift (e.g. AppSettings.override), and regenerates `project.pbxproj`/`Package.resolved`/`GeneratedMocks.swift` so those generated/committed files don't need manual conflict resolution beyond what step 1 fixes at the source level.
 3. Run UnitTests target.
+
+## Snapshot tests (they DO run on this fork's CI)
+The unit-tests workflow runs PreviewTests, so any fork edit that changes a
+preview's rendering needs re-recorded snapshots. Do not record locally —
+environments differ. Instead add the `record-snapshots` label to the PR:
+upstream's Record Snapshots workflow re-records on CI and pushes a
+"Record preview snapshots" commit as "Element CI". That commit's workflow
+runs are gated as a first-time contributor — approve them with
+`gh api -X POST repos/khamitovdr/element-x-ios/actions/runs/<id>/approve`.
+
+## Fork CI facts
+- `Unit Tests (Enterprise)` is disabled on the fork (`disabled_manually`) —
+  it needs Element's private-submodule token and can never pass here.
+- Local UnitTests runs show ~26 AppLock/Keychain failures (no signing
+  identity); those same suites pass on GitHub CI. Trust CI for those.
