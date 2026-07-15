@@ -91,20 +91,10 @@ struct LiveLocationRoomTimelineView: View {
         }
     }
     
-    @ViewBuilder
     private var liveContent: some View {
-        if let geoURI = timelineItem.content.lastGeoURI {
-            MapLibreStaticMapView(geoURI: geoURI,
-                                  mapURLBuilder: context.viewState.mapTilerSettings,
-                                  attributionPlacement: .topLeft,
-                                  mapSize: .init(width: mapAspectRatio * mapMaxHeight, height: mapMaxHeight)) {
-                LocationMarkerView(kind: .liveUser(.init(sender: timelineItem.sender)),
-                                   mediaProvider: context.mediaProvider)
-            }
-        } else {
-            Image(asset: Asset.Images.mapBlurred)
-                .resizable()
-        }
+        // Fork: no map tiles — render the blurred-map placeholder imagery.
+        Image(asset: Asset.Images.mapBlurred)
+            .resizable()
     }
     
     private var liveLocationStateString: String {

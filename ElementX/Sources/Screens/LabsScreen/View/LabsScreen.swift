@@ -15,7 +15,6 @@ struct LabsScreen: View {
     var body: some View {
         Form {
             header
-            threadsSection
         }
         .compoundList()
         .navigationTitle(L10n.screenLabsTitle)
@@ -43,20 +42,6 @@ struct LabsScreen: View {
                 .compoundListSectionHeader()
             }
             .frame(maxWidth: .infinity)
-        }
-    }
-    
-    private var threadsSection: some View {
-        Section {
-            ListRow(label: .default(title: L10n.screenLabsEnableThreads,
-                                    icon: \.threads),
-                    kind: .toggle($context.threadsEnabled))
-        } footer: {
-            Text(L10n.screenLabsEnableThreadsDescription)
-                .compoundListSectionFooter()
-        }
-        .onChange(of: context.threadsEnabled) { _, _ in
-            context.send(viewAction: .clearCache)
         }
     }
 }

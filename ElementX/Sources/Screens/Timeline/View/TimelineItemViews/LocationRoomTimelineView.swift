@@ -24,28 +24,11 @@ struct LocationRoomTimelineView: View {
         }
     }
     
-    @ViewBuilder
     private var mainContent: some View {
-        if let geoURI = timelineItem.content.geoURI {
-            MapLibreStaticMapView(geoURI: geoURI,
-                                  mapURLBuilder: context.viewState.mapTilerSettings,
-                                  mapSize: .init(width: mapAspectRatio * mapMaxHeight, height: mapMaxHeight)) {
-                LocationMarkerView(kind: timelineItem.content.kind == .sender ? .staticUser(.init(sender: timelineItem.sender)) : .pin,
-                                   mediaProvider: context.mediaProvider)
-            }
-            .frame(maxHeight: mapMaxHeight)
-            .aspectRatio(mapAspectRatio, contentMode: .fit)
-            .clipped()
-        } else {
-            FormattedBodyText(text: timelineItem.body,
-                              trailingReservedSize: timelineItem.trailingReservedSize)
-        }
+        // Fork: no map tiles — always render the textual description/geo URI.
+        FormattedBodyText(text: timelineItem.body,
+                          trailingReservedSize: timelineItem.trailingReservedSize)
     }
-    
-    // MARK: - Private
-    
-    private let mapAspectRatio: Double = 3 / 2
-    private let mapMaxHeight: Double = 300
 }
 
 struct LocationRoomTimelineView_Previews: PreviewProvider, TestablePreview {

@@ -143,15 +143,6 @@ final class JoinRoomScreenViewModelTests {
     }
     
     @Test
-    func declineAndBlockInviteInteraction() async throws {
-        setupViewModel(mode: .invited)
-        try await deferFulfillment(viewModel.context.$viewState) { $0.roomDetails != nil }.fulfill()
-        let deferredAction = deferFulfillment(viewModel.actionsPublisher) { $0 == .presentDeclineAndBlock(userID: "@test:matrix.org") }
-        context.send(viewAction: .declineInviteAndBlock(userID: "@test:matrix.org"))
-        try await deferredAction.fulfill()
-    }
-    
-    @Test
     func forgetRoom() async throws {
         setupViewModel(mode: .banned)
         

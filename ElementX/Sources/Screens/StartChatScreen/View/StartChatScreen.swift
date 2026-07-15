@@ -51,7 +51,6 @@ struct StartChatScreen: View {
     @ViewBuilder
     private var mainContent: some View {
         createRoomSection
-        roomDirectorySearch
         inviteFriendsSection
         joinRoomByAddressSection
         usersSection
@@ -63,16 +62,6 @@ struct StartChatScreen: View {
                                     icon: \.room),
                     kind: .button {
                         context.isJoinRoomByAddressSheetPresented = true
-                    })
-        }
-    }
-    
-    private var roomDirectorySearch: some View {
-        Section {
-            ListRow(label: .default(title: L10n.screenRoomDirectorySearchTitle,
-                                    icon: \.listBulleted),
-                    kind: .navigationLink {
-                        context.send(viewAction: .openRoomDirectorySearch)
                     })
         }
     }

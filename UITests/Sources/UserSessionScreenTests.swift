@@ -172,24 +172,6 @@ class UserSessionScreenTests: XCTestCase {
         app.buttons[A11yIdentifiers.roomScreen.attachmentPickerDocuments].tap()
     }
     
-    func testLocationSharing() {
-        let app = Application.launch(.userSessionScreen)
-        
-        app.buttons[A11yIdentifiers.homeScreen.roomName(firstRoomName)].tap()
-        XCTAssert(app.buttons[firstRoomName].waitForExistence(timeout: 5.0))
-        
-        app.buttons[A11yIdentifiers.roomScreen.composerToolbar.openComposeOptions].tap()
-        app.buttons[A11yIdentifiers.roomScreen.attachmentPickerLocation].tap()
-        
-        allowLocationPermissionOnce()
-        
-        // Handle map loading errors (missing credentials)
-        let alertOkButton = app.alerts.firstMatch.buttons["OK"].firstMatch
-        if alertOkButton.waitForExistence(timeout: 10.0) {
-            alertOkButton.tap(.center)
-        }
-    }
-    
     func testSpaceExploration() async throws {
         let app = Application.launch(.userSessionSpacesFlow)
         
@@ -342,14 +324,6 @@ class UserSessionScreenTests: XCTestCase {
         app.buttons[A11yIdentifiers.startChatScreen.createRoom].tap()
         
         tapOnBackButton("Start chat", app)
-    }
-    
-    private func allowLocationPermissionOnce() {
-        let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
-        let notificationAlertAllowButton = springboard.buttons["Allow Once"].firstMatch
-        if notificationAlertAllowButton.waitForExistence(timeout: 10.0) {
-            notificationAlertAllowButton.tap(.center)
-        }
     }
     
     /// Taps on a back button that the system configured with a label but no identifier.

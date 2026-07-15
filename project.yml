@@ -146,15 +146,6 @@ packages:
   Mantis:
     url: https://github.com/guoyingtao/Mantis
     minorVersion: 2.31.2
-  MapLibre:
-    url: https://github.com/maplibre/maplibre-gl-native-distribution
-    minorVersion: 6.27.0
-  PostHog:
-    url: https://github.com/PostHog/posthog-ios
-    minorVersion: 3.61.1
-  Sentry:
-    url: https://github.com/getsentry/sentry-cocoa
-    minorVersion: 9.18.0
   SnapshotTesting:
     url: https://github.com/pointfreeco/swift-snapshot-testing
     minorVersion: 1.19.2

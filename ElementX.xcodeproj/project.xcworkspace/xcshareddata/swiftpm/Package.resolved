@@ -1,5 +1,5 @@
 {
-  "originHash" : "b2bcfd4f704c144b36ac18bb17859627163be8018ed52c4ec3cbf11d3e3f4469",
+  "originHash" : "32015deb57a1813fd7da5690dc7a40b1e1aeea028939ff0045a99a0fbac159ac",
   "pins" : [
     {
       "identity" : "compound-design-tokens",
@@ -136,15 +136,6 @@
       }
     },
     {
-      "identity" : "maplibre-gl-native-distribution",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/maplibre/maplibre-gl-native-distribution",
-      "state" : {
-        "revision" : "84a79bc375a301169390ac110c868f06c857b83f",
-        "version" : "6.27.0"
-      }
-    },
-    {
       "identity" : "matrix-analytics-events",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/matrix-org/matrix-analytics-events",
@@ -187,24 +178,6 @@
       "state" : {
         "revision" : "11f1887767cbc87c4b64b789ee830b779cc744cb",
         "version" : "0.8.4"
-      }
-    },
-    {
-      "identity" : "posthog-ios",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/PostHog/posthog-ios",
-      "state" : {
-        "revision" : "6e70aa24bbd3778182fe039f7f5800a17674a6d6",
-        "version" : "3.61.1"
-      }
-    },
-    {
-      "identity" : "sentry-cocoa",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/getsentry/sentry-cocoa",
-      "state" : {
-        "revision" : "43abfbf9a26089ad34604c718ad0935440caf1d4",
-        "version" : "9.18.0"
       }
     },
     {
