@@ -30,8 +30,9 @@
 | Knocking | Hide via flag |
 | Report content / report room | Hide entry points |
 | Analytics (PostHog), crash reporting (Sentry) | Remove packages |
-| Bug reporting (rageshake) | Self-hides (no rageshake URL in Secrets); strip Sentry integration |
-| Server picker / QR login / link new device | Pin provider, hide via flags (QR self-hides without OIDC) |
+| Bug reporting (rageshake) | Self-hides once `Secrets.swift` is nilled out; strip Sentry integration |
+| Server picker / link new device | Pin provider, hide via flags |
+| QR-code login | One-line edit: the button is only gated by "not on Mac", so it does NOT self-hide — force it off in the pinned-provider branch |
 | Room directory search ("explore rooms") | Hide entry point |
 | E2EE screens, member/roles management, search, pinned events, app lock | Keep untouched |
 
@@ -63,20 +64,33 @@ Because the flags are forced off each launch, their user-facing toggles must not
 
 ### Layer 2 — Excision (small, contained upstream edits)
 
-**MapLibre + location sharing.** Remove the `MapLibre` package from `project.yml`.
-Delete `Screens/LocationSharing/` and the map-rendering parts of `Services/Location/`.
-Keep small types that `AppSettings` or generated code depend on (e.g. `MapTilerSettings`)
-when deleting them would ripple into upstream-hot files — orphaned value types are cheap.
-Timeline fallback: `LocationRoomTimelineView.swift` and `LiveLocationRoomTimelineView.swift`
-(in `Screens/Timeline/View/TimelineItemViews/`) render a compact row — pin icon, coordinates
-or geo-description — and tapping opens Apple Maps with the coordinates. Remove the
-"Location" option from `Screens/RoomScreen/ComposerToolbar/View/RoomAttachmentPicker.swift`.
+**MapLibre + location sharing.** Research showed only THREE files import MapLibre
+(`MapLibreMapView`, `LocationAnnotation`, `TargetConfiguration`), while full deletion of
+location code would ripple through ~20 upstream-hot files (TimelineViewModel,
+RoomFlowCoordinator, proxies, mocks). So: remove the `MapLibre` package from `project.yml`,
+rewrite the two MapLibre-importing wrapper files IN PLACE as API-compatible stubs
+(placeholder imagery, same type names/initializers), and drop the MapLibre configuration
+from `TargetConfiguration`. `Screens/LocationSharing/`, `Services/Location/` and
+`MapTilerSettings` stay compiled but unreachable: with `Secrets.mapLibreAPIKey == nil`,
+upstream's own gating (`mapTilerSettings.isEnabled`) hides the composer "Location" option
+and disables location-bubble taps — no edits to `RoomAttachmentPicker` or flow coordinators.
+Timeline fallback: `LocationRoomTimelineView` always renders the textual description
+(`FormattedBodyText`), `LiveLocationRoomTimelineView` renders the bundled blurred-map asset;
+no Apple Maps hand-off (tap entry points are disabled, and received locations are rare
+once sending is removed).
 
-**PostHog + Sentry.** Remove both packages from `project.yml`. Delete
-`PostHogAnalyticsClient` and strip the Sentry integration from `BugReportService`
-(stub types only where upstream wiring requires them). Keep the `AnalyticsEvents`
-package: tiny, pure Swift, threaded through dozens of `analytics.track(…)` call sites;
-upstream's keyless-build path already no-ops analytics at runtime.
+**PostHog + Sentry.** Remove both packages from `project.yml`. Delete the four PostHog
+files and replace the client with a fork-owned `NoOpAnalyticsClient`. Sentry is more
+entangled than two files (Signposter spans, `.sentryTrace` view modifiers, `setupSentry`,
+crash detection): keep every signature and gut bodies — no-op `Signposter`, empty
+`setupSentry`, `crashedLastRun = false` — so the dozens of call sites stay untouched.
+Keep the `AnalyticsEvents` package: tiny, pure Swift, threaded through dozens of
+`analytics.track(…)` call sites; upstream's keyless-build path no-ops analytics at runtime.
+
+**Secrets.** The fork's committed `Secrets/Secrets.swift` carries non-nil localhost
+placeholders, so the analytics consent prompt and bug-report row are currently VISIBLE.
+Nil every value: this activates upstream's disabled paths for analytics, Sentry and
+rageshake, and disables MapTiler (hiding all location entry points).
 
 **Entry-point hides.** Remove menu items / buttons only (screens may stay compiled):
 - "Report content" in the timeline item menu; "Report room" in room details.
@@ -89,15 +103,18 @@ Sourcery regenerates mocks and preview dictionaries, shrinking them automaticall
 
 New `docs/fork-slimming.md` documents every upstream file the fork edits, with the rule:
 **on merge conflict, take upstream's version, then re-apply the exclusion.** Expected
-conflict spots: `project.yml` (packages), `RoomAttachmentPicker.swift`,
+conflict spots: `project.yml`/`target.yml` (packages), `Secrets.swift`, `AppCoordinator`,
+`Signposter`, `BugReportService`, the MapLibre wrapper stubs,
 `LocationRoomTimelineView.swift` / `LiveLocationRoomTimelineView.swift`,
-`LabsScreen.swift`, `DeveloperOptionsScreen`, `BugReportService`, report/directory
-entry points. Fork-owned files (`ForkAppSettingsHook`, `AppHooks+Fork`) never conflict.
+`AuthenticationStartScreenViewModel.swift` (QR), `LabsScreen.swift` + Settings row,
+`DeveloperOptionsScreen`, and the report/directory entry points. Fork-owned files
+(`ForkAppSettingsHook`, `AppHooks+Fork`, `NoOpAnalyticsClient`) never conflict.
 
 ## Error handling
 
 - Location messages received from other clients must never crash or render blank:
-  the fallback row renders from the event's coordinates/description alone.
+  static locations render their textual description (`FormattedBodyText`), live shares
+  render the bundled blurred-map asset.
 - If upstream changes `AppSettings.override(…)`'s signature, the fork hook fails to
   compile — a loud, easy fix, preferred over silent drift.
 
@@ -107,7 +124,7 @@ On-simulator (build with `DEVELOPER_DIR=/Applications/Xcode.app/Contents/Develop
 
 1. Fresh install → login goes straight to the branga.ru password form; no server picker, no QR option.
 2. Attach menu shows photo/video/file/poll — no Location.
-3. A location message sent from Element Web renders the fallback row; tap opens Apple Maps.
+3. A location message sent from Element Web renders as a text bubble (description/geo URI), no spinner.
 4. Element Call starts; a poll can be created; voice message and round video record.
 5. No threads UI, no knock UI, no report menu items, no analytics/bug-report settings rows,
    no explore-rooms entry.
