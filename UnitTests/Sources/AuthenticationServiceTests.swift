@@ -15,6 +15,7 @@ import Testing
 struct AuthenticationServiceTests {
     var client: ClientSDKMock!
     var encryption: EncryptionSDKMock!
+    var clientFactory: AuthenticationClientFactoryMock!
     var userSessionStore: UserSessionStoreMock!
     var encryptionKeyProvider: MockEncryptionKeyProvider!
     var service: AuthenticationService!
@@ -79,6 +80,53 @@ struct AuthenticationServiceTests {
     }
     
     @Test
+    mutating func configureAgainForSameServerReusesClient() async throws {
+        // Given a service that has already been configured for a server.
+        try await setup()
+        try await service.configure(for: "matrix.org", flow: .login).get()
+        try #require(clientFactory.makeClientHomeserverAddressSessionDirectoriesPassphraseClientSessionDelegateAppSettingsAppHooksCallsCount == 1)
+        
+        // When configuring it again for the same server and flow.
+        try await service.configure(for: "matrix.org", flow: .login).get()
+        
+        // Then the existing client should be reused, without rotating the session directory
+        // out from under a login that may already be in flight on that client.
+        #expect(clientFactory.makeClientHomeserverAddressSessionDirectoriesPassphraseClientSessionDelegateAppSettingsAppHooksCallsCount == 1)
+        #expect(service.flow == .login)
+        #expect(service.homeserver.value == .mockMatrixDotOrg)
+    }
+    
+    @Test
+    mutating func configureForDifferentServerMakesNewClient() async throws {
+        // Given a service that has already been configured for a server.
+        try await setup()
+        try await service.configure(for: "matrix.org", flow: .login).get()
+        
+        // When configuring it for a different server.
+        try await service.configure(for: "example.com", flow: .login).get()
+        
+        // Then a new client should be built with fresh session directories.
+        let invocations = clientFactory.makeClientHomeserverAddressSessionDirectoriesPassphraseClientSessionDelegateAppSettingsAppHooksReceivedInvocations
+        try #require(invocations.count == 2)
+        #expect(invocations[0].sessionDirectories != invocations[1].sessionDirectories)
+        #expect(service.homeserver.value == .mockBasicServer)
+    }
+    
+    @Test
+    mutating func configureAgainForDifferentFlowMakesNewClient() async throws {
+        // Given a service that has already been configured for a server to log in.
+        try await setup()
+        try await service.configure(for: "matrix.org", flow: .login).get()
+        
+        // When configuring the same server for registration.
+        try await service.configure(for: "matrix.org", flow: .register).get()
+        
+        // Then the server should be configured from scratch for the new flow.
+        #expect(clientFactory.makeClientHomeserverAddressSessionDirectoriesPassphraseClientSessionDelegateAppSettingsAppHooksCallsCount == 2)
+        #expect(service.flow == .register)
+    }
+    
+    @Test
     @MainActor
     mutating func classicAppAccountSecretsBundleIsUsed() async throws {
         // Given an authentication service with an Element Classic account for Alice.
@@ -136,7 +184,7 @@ struct AuthenticationServiceTests {
                                 classicAppAccounts: [ClassicAppAccount] = [],
                                 availableSecrets: ClassicAppAccount.AvailableSecrets = .complete) async throws {
         let configuration: AuthenticationClientFactoryMock.Configuration = .init()
-        let clientFactory = AuthenticationClientFactoryMock(configuration)
+        clientFactory = AuthenticationClientFactoryMock(configuration)
         
         client = configuration.homeserverClients[serverAddress]
         encryption = EncryptionSDKMock()
