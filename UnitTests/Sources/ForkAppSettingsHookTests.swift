@@ -18,6 +18,7 @@ struct ForkAppSettingsHookTests {
         appSettings.roomThreadListEnabled = true
         appSettings.knockingEnabled = true
         appSettings.linkNewDeviceEnabled = true
+        appSettings.analyticsConsentState = .optedIn
         
         let configured = ForkAppSettingsHook().configure(appSettings)
         
@@ -27,5 +28,6 @@ struct ForkAppSettingsHookTests {
         #expect(configured.roomThreadListEnabled == false)
         #expect(configured.knockingEnabled == false)
         #expect(configured.linkNewDeviceEnabled == false)
+        #expect(configured.analyticsConsentState == .optedOut)
     }
 }

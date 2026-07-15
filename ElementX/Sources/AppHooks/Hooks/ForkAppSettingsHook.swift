@@ -43,6 +43,9 @@ struct ForkAppSettingsHook: AppSettingsHookProtocol {
         appSettings.knockingEnabled = false
         appSettings.linkNewDeviceEnabled = false
         
+        // Clears any opt-in persisted before the fork disabled analytics — the consent UI is gone, so this is the only opt-out path.
+        appSettings.analyticsConsentState = .optedOut
+        
         return appSettings
     }
 }
