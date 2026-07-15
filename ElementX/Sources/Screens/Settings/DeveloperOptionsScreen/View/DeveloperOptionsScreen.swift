@@ -45,10 +45,6 @@ struct DeveloperOptionsScreen: View {
             }
             
             Section("General") {
-                Toggle(isOn: $context.linkNewDeviceEnabled) {
-                    Text("Link new device with QR code")
-                }
-                
                 Toggle(isOn: $context.globalSearchEnabled) {
                     Text("Global search")
                     Text("Moves search to a separate tab")
@@ -86,10 +82,6 @@ struct DeveloperOptionsScreen: View {
             }
             
             Section("Room") {
-                Toggle(isOn: $context.roomThreadListEnabled) {
-                    Text("Room thread list")
-                }
-                
                 Toggle(isOn: $context.linkPreviewsEnabled) {
                     Text("Link previews")
                     Text("Follows the timeline media visibility settings.")
@@ -100,11 +92,6 @@ struct DeveloperOptionsScreen: View {
                 Toggle(isOn: $context.jumpToReadMarkerEnabled) {
                     Text("Jump to unread")
                     Text("Adds a button to jump to the read marker, plus a presence dot on the scroll-to-bottom button when new messages arrive while scrolled away.")
-                }
-                
-                Toggle(isOn: $context.knockingEnabled) {
-                    Text("Knocking")
-                    Text("Ask to join rooms")
                 }
             }
             
