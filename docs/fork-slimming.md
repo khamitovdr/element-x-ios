@@ -32,6 +32,7 @@ values this fork nils out. Treat it like any other row in the table below.
 | ElementX/Sources/Application/TargetConfiguration.swift | no MapLibre configuration |
 | ElementX/Sources/Screens/Timeline/View/TimelineItemViews/LocationRoomTimelineView.swift, LiveLocationRoomTimelineView.swift | text-only fallback (LocationRoomTimelineView) / blurred-asset fallback (LiveLocationRoomTimelineView) instead of static map tiles |
 | ElementX/Sources/Screens/Authentication/StartScreen/AuthenticationStartScreenViewModel.swift | QR button false in pinned branch |
+| UnitTests/Sources/AuthenticationStartScreenViewModelTests.swift | additive fork test (`singleProviderHidesQRCodeLoginButton`) covering the QR-button exclusion — keep both sides on conflict |
 | ElementX/Sources/Screens/LabsScreen/View/LabsScreen.swift + Settings SettingsScreen.swift | threads section + Labs row removed |
 | ElementX/Sources/Screens/Settings/DeveloperOptionsScreen/View/DeveloperOptionsScreen.swift | knocking/thread-list/link-device toggles removed |
 | ElementX/Sources/Screens/Timeline/View/ItemMenu/TimelineItemMenuActionProvider.swift | .report menu item removed |
