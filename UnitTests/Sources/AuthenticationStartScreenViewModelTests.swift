@@ -134,6 +134,16 @@ final class AuthenticationStartScreenViewModelTests {
         #expect(authenticationService.homeserver.value.loginMode == .password)
     }
     
+    @Test
+    func singleProviderHidesQRCodeLoginButton() async {
+        // Given a view model for an app that only allows the use of a single provider.
+        setAllowedAccountProviders(["company.com"])
+        await setupViewModel()
+        
+        // Then the QR code login button should be hidden, since a pinned password-auth server can't use the OIDC device flow.
+        #expect(context.viewState.showQRCodeLoginButton == false)
+    }
+    
     // MARK: - Classic App Account
     
     @Test

@@ -50,7 +50,8 @@ class AuthenticationStartScreenViewModel: AuthenticationStartScreenViewModelType
             // The assumption here being that if you're running a custom app, your users will already be created.
             AuthenticationStartScreenViewState(serverName: appSettings.accountProviders.count == 1 ? appSettings.accountProviders[0] : nil,
                                                showCreateAccountButton: false,
-                                               showQRCodeLoginButton: isQRCodeScanningSupported,
+                                               // Fork: pinned password-auth server — QR login (OIDC device flow) can't work.
+                                               showQRCodeLoginButton: false,
                                                classicAppMode: isClassicAppAccountAllowed ? authenticationService.classicAppAccount.map { .welcomeBack($0) } : nil,
                                                hideBrandChrome: appSettings.hideBrandChrome)
         } else if let provisioningParameters {
