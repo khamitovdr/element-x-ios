@@ -71,6 +71,14 @@ class AuthenticationService: AuthenticationServiceProtocol {
     // MARK: - Public
     
     func configure(for homeserverAddress: String, flow: AuthenticationFlow) async -> Result<Void, AuthenticationServiceError> {
+        // Reconfiguring for the same server would rotate the session directory, deleting it
+        // out from under a login that may already be in flight on the existing client.
+        if client != nil, flow == self.flow,
+           LoginHomeserver(address: homeserverAddress, loginMode: .unknown).address == homeserverSubject.value.address {
+            MXLog.info("Already configured for \(homeserverAddress), reusing the existing client.")
+            return .success(())
+        }
+        
         do {
             var homeserver = LoginHomeserver(address: homeserverAddress, loginMode: .unknown)
             
