@@ -146,9 +146,6 @@ packages:
   Mantis:
     url: https://github.com/guoyingtao/Mantis
     minorVersion: 2.31.2
-  MapLibre:
-    url: https://github.com/maplibre/maplibre-gl-native-distribution
-    minorVersion: 6.27.0
   SnapshotTesting:
     url: https://github.com/pointfreeco/swift-snapshot-testing
     minorVersion: 1.19.2

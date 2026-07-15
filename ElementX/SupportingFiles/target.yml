@@ -253,7 +253,6 @@ targets:
     - package: LoremSwiftum
     - package: LRUCache
     - package: Mantis
-    - package: MapLibre
     - package: SwiftState
     - package: GZIP
     - package: Version

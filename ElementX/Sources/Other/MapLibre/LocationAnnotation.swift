@@ -8,13 +8,10 @@
 
 import CoreLocation
 import Foundation
-import MapLibre
-import SwiftUI
 
-final class LocationAnnotation: NSObject, MLNAnnotation, Identifiable {
+final class LocationAnnotation: NSObject, Identifiable {
     let id: String
-    // @objc dynamic is required to make animations work
-    @objc dynamic var coordinate: CLLocationCoordinate2D
+    var coordinate: CLLocationCoordinate2D
     var kind: LocationMarkerKind
     
     // MARK: - Setup
@@ -24,41 +21,5 @@ final class LocationAnnotation: NSObject, MLNAnnotation, Identifiable {
         self.coordinate = coordinate
         self.kind = kind
         super.init()
-    }
-}
-
-final class LocationAnnotationView: MLNUserLocationAnnotationView {
-    private var hostingController: UIHostingController<AnyView>?
-    
-    // MARK: - Setup
-    
-    override init(annotation: MLNAnnotation?, reuseIdentifier: String?) {
-        super.init(annotation: annotation, reuseIdentifier:
-            reuseIdentifier)
-    }
-    
-    convenience init(annotation: LocationAnnotation, mediaProvider: MediaProviderProtocol?) {
-        self.init(annotation: annotation, reuseIdentifier: "\(Self.self)")
-        let markerView = LocationMarkerView(kind: annotation.kind, mediaProvider: mediaProvider)
-        let hostingController = UIHostingController(rootView: AnyView(markerView))
-        self.hostingController = hostingController
-        let view: UIView = hostingController.view
-        view.backgroundColor = .clear
-        view.anchorPoint = .init(x: 0.5, y: 1.0)
-        addSubview(view)
-        view.bounds.size = view.intrinsicContentSize
-    }
-    
-    func updateContent(with kind: LocationMarkerKind, mediaProvider: MediaProviderProtocol?) {
-        let markerView = LocationMarkerView(kind: kind, mediaProvider: mediaProvider)
-        hostingController?.rootView = AnyView(markerView)
-        if let hostedView = hostingController?.view {
-            hostedView.bounds.size = hostedView.intrinsicContentSize
-        }
-    }
-    
-    @available(*, unavailable)
-    required init?(coder: NSCoder) {
-        fatalError()
     }
 }
