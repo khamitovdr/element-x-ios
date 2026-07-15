@@ -35,7 +35,6 @@ targets:
     - package: KZFileWatchers
     - package: SwiftState
     - package: GZIP
-    - package: Sentry
     - package: SnapshotTesting
     - package: Collections
     - package: SwiftOGG

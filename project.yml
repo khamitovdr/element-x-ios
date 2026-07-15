@@ -149,9 +149,6 @@ packages:
   MapLibre:
     url: https://github.com/maplibre/maplibre-gl-native-distribution
     minorVersion: 6.27.0
-  Sentry:
-    url: https://github.com/getsentry/sentry-cocoa
-    minorVersion: 9.18.0
   SnapshotTesting:
     url: https://github.com/pointfreeco/swift-snapshot-testing
     minorVersion: 1.19.2

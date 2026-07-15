@@ -9,7 +9,6 @@
 import Combine
 import Foundation
 import GZIP
-import Sentry
 import UIKit
 
 class BugReportService: NSObject, BugReportServiceProtocol {
@@ -49,7 +48,8 @@ class BugReportService: NSObject, BugReportServiceProtocol {
     // MARK: - BugReportServiceProtocol
     
     var crashedLastRun: Bool {
-        SentrySDK.lastRunStatus == .didCrash
+        // Fork: Sentry removed — see docs/fork-slimming.md.
+        false
     }
     
     // swiftlint:disable:next cyclomatic_complexity
