@@ -343,7 +343,8 @@ final class HomeScreenViewModelTests {
             
             return .invited(roomProxy)
         }
-        context.viewState.bindings.alertInfo?.verticalButtons?[0].action?()
+        // Fork: in-app reporting removed — the plain alert declines via its secondary button.
+        context.viewState.bindings.alertInfo?.secondaryButton?.action?()
         
         // Wait for the async action to complete
         try await Task.sleep(for: .milliseconds(100))
@@ -352,22 +353,6 @@ final class HomeScreenViewModelTests {
         #expect(appSettings.seenInvites == [invitedRoomIDs[1]])
         #expect(notificationManager.removeDeliveredMessageNotificationsForCalled)
         #expect(notificationManager.removeDeliveredMessageNotificationsForReceivedInvocations == [invitedRoomIDs[0]])
-    }
-    
-    @Test
-    func declineAndBlockInvite() async throws {
-        setupViewModel(invites: .rooms)
-        let invitedRoomIDs = context.viewState.rooms.invites.compactMap(\.roomID)
-        appSettings.seenInvites = Set(invitedRoomIDs)
-        #expect(invitedRoomIDs.count == 2)
-        
-        let deferred = deferFulfillment(context.$viewState) { $0.bindings.alertInfo != nil }
-        context.send(viewAction: .declineInvite(roomIdentifier: invitedRoomIDs[0]))
-        try await deferred.fulfill()
-        
-        let deferredAction = deferFulfillment(viewModel.actions) { $0 == .presentDeclineAndBlock(userID: RoomMemberProxyMock.mockCharlie.userID, roomID: invitedRoomIDs[0]) }
-        context.viewState.bindings.alertInfo?.secondaryButton?.action?()
-        try await deferredAction.fulfill()
     }
     
     @Test
