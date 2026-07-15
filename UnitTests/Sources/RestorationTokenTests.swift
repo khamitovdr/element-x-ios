@@ -96,6 +96,65 @@ struct RestorationTokenTests {
     }
     
     @Test
+    func decodeFromTokenV4StoredInMovedContainer() throws {
+        // Given an encoded restoration token in the 4th format whose session directory was stored
+        // by an install in a container that no longer exists.
+        let sessionDirectoryName = UUID().uuidString
+        let staleContainer = "/private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-000000000000/Library"
+        let originalToken = RestorationTokenV4(session: SessionV1(accessToken: "1234",
+                                                                  refreshToken: "5678",
+                                                                  userId: "@user:example.com",
+                                                                  deviceId: "D3V1C3",
+                                                                  homeserverUrl: "https://matrix.example.com",
+                                                                  oidcData: "data-from-mas",
+                                                                  slidingSyncVersion: .native),
+                                               sessionDirectory: URL(filePath: "\(staleContainer)/Application Support/io.element.elementx/Sessions/\(sessionDirectoryName)"),
+                                               passphrase: "passphrase",
+                                               pusherNotificationClientIdentifier: "pusher-identifier")
+        let data = try JSONEncoder().encode(originalToken)
+        
+        // When decoding the data.
+        let decodedToken = try JSONDecoder().decode(RestorationToken.self, from: data)
+        
+        // Then the directories should be re-anchored onto the current container.
+        #expect(decodedToken.sessionDirectories.dataDirectory == .sessionsBaseDirectory.appending(component: sessionDirectoryName),
+                "The session directory should be re-anchored onto the current sessions directory.")
+        #expect(decodedToken.sessionDirectories.cacheDirectory == .sessionCachesBaseDirectory.appending(component: sessionDirectoryName),
+                "The cache directory should be derived from the session directory but in the caches directory.")
+    }
+    
+    @Test
+    func decodeFromCurrentTokenStoredInMovedContainer() throws {
+        // Given an encoded restoration token in the current format whose directories were stored
+        // by an install in a container that no longer exists (without an app group the app's
+        // container UUID changes on every install).
+        let sessionDirectoryName = UUID().uuidString
+        let staleContainer = "/private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-000000000000/Library"
+        let staleDirectories = SessionDirectories(dataDirectory: URL(filePath: "\(staleContainer)/Application Support/io.element.elementx/Sessions/\(sessionDirectoryName)"),
+                                                  cacheDirectory: URL(filePath: "\(staleContainer)/Caches/io.element.elementx/Sessions/\(sessionDirectoryName)"))
+        let originalToken = RestorationToken(session: Session(accessToken: "1234",
+                                                              refreshToken: "5678",
+                                                              userId: "@user:example.com",
+                                                              deviceId: "D3V1C3",
+                                                              homeserverUrl: "https://matrix.example.com",
+                                                              oauthData: "data-from-mas",
+                                                              slidingSyncVersion: .native),
+                                             sessionDirectories: staleDirectories,
+                                             passphrase: "passphrase",
+                                             pusherNotificationClientIdentifier: "pusher-identifier")
+        let data = try JSONEncoder().encode(originalToken)
+        
+        // When decoding the data.
+        let decodedToken = try JSONDecoder().decode(RestorationToken.self, from: data)
+        
+        // Then the directories should be re-anchored onto the current container.
+        #expect(decodedToken.sessionDirectories.dataDirectory == .sessionsBaseDirectory.appending(component: sessionDirectoryName),
+                "The session directory should be re-anchored onto the current sessions directory.")
+        #expect(decodedToken.sessionDirectories.cacheDirectory == .sessionCachesBaseDirectory.appending(component: sessionDirectoryName),
+                "The cache directory should be re-anchored onto the current caches directory.")
+    }
+    
+    @Test
     func decodeFromCurrentToken() throws {
         // Given an encoded restoration token in the current format.
         let originalToken = RestorationToken(session: Session(accessToken: "1234",

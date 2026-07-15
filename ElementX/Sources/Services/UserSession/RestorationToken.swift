@@ -36,11 +36,7 @@ nonisolated extension RestorationToken: Codable {
         let dataDirectory = try container.decode(URL.self, forKey: .sessionDirectory)
         let cacheDirectory = try container.decodeIfPresent(URL.self, forKey: .cacheDirectory)
         
-        let sessionDirectories = if let cacheDirectory {
-            SessionDirectories(dataDirectory: dataDirectory, cacheDirectory: cacheDirectory)
-        } else {
-            SessionDirectories(dataDirectory: dataDirectory)
-        }
+        let sessionDirectories = SessionDirectories(restoredDataDirectory: dataDirectory, restoredCacheDirectory: cacheDirectory)
         
         self = try .init(session: session,
                          sessionDirectories: sessionDirectories,

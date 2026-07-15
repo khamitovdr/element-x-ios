@@ -86,6 +86,21 @@ nonisolated extension SessionDirectories {
         self.dataDirectory = dataDirectory
         cacheDirectory = .sessionCachesBaseDirectory.appending(component: dataDirectory.lastPathComponent)
     }
+    
+    /// Creates session directories from URLs restored from disk, re-anchoring them onto the
+    /// current base directories. Without an app group the app's container path changes on
+    /// every install, making the stored absolute paths stale even though the directories
+    /// still exist in the new container.
+    init(restoredDataDirectory: URL, restoredCacheDirectory: URL?) {
+        let dataDirectoryName = restoredDataDirectory.lastPathComponent
+        dataDirectory = if restoredDataDirectory.deletingLastPathComponent().lastPathComponent == "Sessions" {
+            .sessionsBaseDirectory.appending(component: dataDirectoryName)
+        } else {
+            // Legacy sessions lived directly inside the application support directory.
+            .applicationSupportBaseDirectory.appending(component: dataDirectoryName)
+        }
+        cacheDirectory = .sessionCachesBaseDirectory.appending(component: (restoredCacheDirectory ?? restoredDataDirectory).lastPathComponent)
+    }
 }
 
 nonisolated extension SessionDirectories: CustomStringConvertible {

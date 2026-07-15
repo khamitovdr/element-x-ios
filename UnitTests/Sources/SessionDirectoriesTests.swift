@@ -28,6 +28,37 @@ struct SessionDirectoriesTests {
     }
     
     @Test
+    func initFromRestoredDirectoriesRebasesOntoCurrentContainer() {
+        // Given directories stored by a previous install whose container no longer exists.
+        let sessionDirectoryName = UUID().uuidString
+        let staleContainer = "/private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-000000000000/Library"
+        let staleDataDirectory = URL(filePath: "\(staleContainer)/Application Support/io.element.elementx/Sessions/\(sessionDirectoryName)")
+        let staleCacheDirectory = URL(filePath: "\(staleContainer)/Caches/io.element.elementx/Sessions/\(sessionDirectoryName)")
+        
+        // When creating session directories from them.
+        let sessionDirectories = SessionDirectories(restoredDataDirectory: staleDataDirectory, restoredCacheDirectory: staleCacheDirectory)
+        
+        // Then the directories should be re-anchored onto the current base directories.
+        #expect(sessionDirectories.dataDirectory == .sessionsBaseDirectory.appending(component: sessionDirectoryName))
+        #expect(sessionDirectories.cacheDirectory == .sessionCachesBaseDirectory.appending(component: sessionDirectoryName))
+    }
+    
+    @Test
+    func initFromRestoredLegacyDataDirectoryRebasesOntoCurrentContainer() {
+        // Given a legacy token that only stored a data directory, located directly in Application Support.
+        let sessionDirectoryName = UUID().uuidString
+        let staleContainer = "/private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-000000000000/Library"
+        let staleDataDirectory = URL(filePath: "\(staleContainer)/Application Support/io.element.elementx/\(sessionDirectoryName)")
+        
+        // When creating session directories from it.
+        let sessionDirectories = SessionDirectories(restoredDataDirectory: staleDataDirectory, restoredCacheDirectory: nil)
+        
+        // Then the data directory should be re-anchored onto Application Support and the cache directory derived from it.
+        #expect(sessionDirectories.dataDirectory == .applicationSupportBaseDirectory.appending(component: sessionDirectoryName))
+        #expect(sessionDirectories.cacheDirectory == .sessionCachesBaseDirectory.appending(component: sessionDirectoryName))
+    }
+    
+    @Test
     func pathOutput() {
         // Given session directories created from paths with spaces in them.
         let originalDataPath = "/Users/John Smith/Data"
