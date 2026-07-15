@@ -108,10 +108,6 @@ struct TimelineItemMenuActionProvider {
             actions.append(.viewSource)
         }
         
-        if !item.isOutgoing {
-            secondaryActions.append(.report)
-        }
-        
         if canRedactItem(item) {
             let isMedia = if case .media = timelineKind {
                 true

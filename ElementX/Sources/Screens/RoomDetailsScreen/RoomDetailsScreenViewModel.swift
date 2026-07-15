@@ -71,9 +71,7 @@ class RoomDetailsScreenViewModel: RoomDetailsScreenViewModelType, RoomDetailsScr
                                            bindings: .init()),
                    mediaProvider: userSession.mediaProvider)
         
-        Task {
-            state.reportRoomEnabled = await userSession.clientProxy.isReportRoomSupported
-        }
+        state.reportRoomEnabled = false // Fork: in-app reporting removed
         
         userSession.clientProxy.homeserverReachabilityPublisher
             .filter { $0 == .reachable }

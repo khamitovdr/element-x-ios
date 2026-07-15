@@ -144,9 +144,7 @@ class HomeScreenViewModel: HomeScreenViewModelType, HomeScreenViewModelProtocol 
             .weakAssign(to: \.state.selectedSpaceFilter, on: self)
             .store(in: &cancellables)
         
-        Task {
-            state.reportRoomEnabled = await userSession.clientProxy.isReportRoomSupported
-        }
+        state.reportRoomEnabled = false // Fork: in-app reporting removed
         
         let isSearchFieldFocused = context.$viewState.map(\.bindings.isSearchFieldFocused)
         let searchQuery = context.$viewState.map(\.bindings.searchQuery)
