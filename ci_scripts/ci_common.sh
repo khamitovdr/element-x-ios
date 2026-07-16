@@ -15,15 +15,21 @@ setup_github_actions_environment() {
     unset HOMEBREW_NO_INSTALL_FROM_API
     export HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK=1
 
-    # FORK-CI (2026-07-16): brew's new tap-trust gating breaks this install
-    # deterministically ("Cellar/xcodegen/2.46.0 is not a directory" mid-pour;
-    # brew's own output recommends this variable for CI). The rm clears the
-    # poisoned Cellar path from the failed pour. Remove both once a plain
-    # `brew install` is green again on the runner image.
-    export HOMEBREW_NO_REQUIRE_TAP_TRUST=1
-    rm -rf "$(brew --prefix)/Cellar/xcodegen"
+    # FORK-CI (2026-07-16): homebrew/core's xcodegen 2.46.0 bottle is broken —
+    # its manifest points at the 2.45.4 blob, so the pour creates Cellar/xcodegen/2.45.4
+    # and brew dies with "Cellar/xcodegen/2.46.0 is not a directory" (verified by
+    # inspecting the bottle tar). Install xcodegen from the official release zip
+    # instead. Remove this block and re-add xcodegen to the brew line once
+    # `brew install xcodegen` pours cleanly again.
+    curl -fsSL -o /tmp/xcodegen.zip https://github.com/yonaskolb/XcodeGen/releases/download/2.46.0/xcodegen.zip
+    unzip -oq /tmp/xcodegen.zip -d /tmp/xcodegen-dist
+    sudo mkdir -p /usr/local/bin /usr/local/share
+    sudo rm -rf /usr/local/share/xcodegen
+    sudo cp -R /tmp/xcodegen-dist/xcodegen/share/xcodegen /usr/local/share/
+    sudo install /tmp/xcodegen-dist/xcodegen/bin/xcodegen /usr/local/bin/xcodegen
+    xcodegen --version
 
-    brew update && brew install xcodegen swiftlint swiftformat git-lfs pkl a7ex/homebrew-formulae/xcresultparser
+    brew update && brew install swiftlint swiftformat git-lfs pkl a7ex/homebrew-formulae/xcresultparser
 }
 
 setup_github_actions_translations_environment() {
