@@ -14,7 +14,15 @@ setup_github_actions_environment() {
     
     unset HOMEBREW_NO_INSTALL_FROM_API
     export HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK=1
-    
+
+    # FORK-CI (2026-07-16): brew's new tap-trust gating breaks this install
+    # deterministically ("Cellar/xcodegen/2.46.0 is not a directory" mid-pour;
+    # brew's own output recommends this variable for CI). The rm clears the
+    # poisoned Cellar path from the failed pour. Remove both once a plain
+    # `brew install` is green again on the runner image.
+    export HOMEBREW_NO_REQUIRE_TAP_TRUST=1
+    rm -rf "$(brew --prefix)/Cellar/xcodegen"
+
     brew update && brew install xcodegen swiftlint swiftformat git-lfs pkl a7ex/homebrew-formulae/xcresultparser
 }
 
