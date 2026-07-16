@@ -130,6 +130,18 @@ free-account build removes both targets (see FREE-ACCOUNT markers).
 | `ElementX/Sources/Screens/HomeScreen/View/Filters/RoomListFilterView.swift` | filter chips → Telegram folder tabs (accent text + underline) |
 | `ElementX/Sources/Screens/HomeScreen/View/TelegramUnreadBadge.swift` | fork-owned file — Telegram unread pill; nothing to re-apply |
 | `ElementX/Sources/FlowCoordinators/SettingsFlowCoordinator.swift` | (also) popToRoot + encryption-coordinator clear guard in handleAppRoute |
+| `ElementX/Sources/Screens/Timeline/View/Style/TelegramBubbleShape.swift` | fork-owned file — bubble shape with tail (16/8 corners); nothing to re-apply |
+| `ElementX/Sources/Screens/Timeline/View/Style/TelegramBubbleGradient.swift` | fork-owned file — screen-anchored outgoing gradient; nothing to re-apply |
+| `ElementX/Sources/Screens/Timeline/View/Style/TimelineItemBubbleBackground.swift` | TelegramBubbleShape fill/stroke replaces cornerRadius(12); gradient for default outgoing |
+| `ElementX/Sources/Screens/Timeline/View/Style/TimelineItemBubbledStylerView.swift` | text insets 11h/6v, top spacing, usesDefaultBubbleColor, forced-dark colorScheme on outgoing content |
+| `compound-ios/Sources/Compound/Colors/CompoundColors.swift` | (also) `_bgBubbleIncoming`/`_bgBubbleOutgoing` Telegram values |
+| `ElementX/Sources/Screens/Timeline/View/Style/TimelineItemSendInfoLabel.swift` | inline delivery tick (.delivery status cases) |
+| `ElementX/Sources/Screens/Timeline/View/Supplementary/TimelineItemStatusView.swift` | outgoing delivery badge suppressed (inline now) except active live-location carve-out |
+| `ElementX/Sources/Screens/Timeline/View/Supplementary/TimelineReactionsView.swift` | Telegram reaction pills (Capsule, accent fills, cutout stroke removed) |
+| `ElementX/Sources/Screens/RoomScreen/ComposerToolbar/View/MessageComposer.swift` | composer field bgCanvasDefault (non-glass branch) |
+| `ElementX/Sources/Screens/RoomScreen/ComposerToolbar/View/RoomAttachmentPicker.swift` | attach icon → \.attachment |
+| `ElementX/Sources/Other/SwiftUI/Views/RoomHeaderView.swift` | centered header, showsAvatar flag |
+| `ElementX/Sources/Screens/RoomScreen/View/RoomScreen.swift` | trailing toolbar avatar (a11y-hidden), showsAvatar: false for principal header |
 
 ### Post-merge re-skin checklist
 
