@@ -297,6 +297,7 @@ struct RoomScreen: View {
         ToolbarItem(placement: .principal) {
             RoomHeaderView(roomName: context.viewState.roomTitle,
                            roomAvatar: context.viewState.roomAvatar,
+                           showsAvatar: false, // TG-SKIN: shown trailing instead, see below.
                            dmRecipientDetails: context.viewState.dmRecipientDetails,
                            roomHistorySharingState: context.viewState.roomHistorySharingState,
                            mediaProvider: context.mediaProvider) {
@@ -332,10 +333,14 @@ struct RoomScreen: View {
             Button {
                 context.send(viewAction: .displayRoomDetails)
             } label: {
+                // TG-SKIN: decorative — the header itself is already the VoiceOver control
+                // for room details, so hide this to avoid a second, unlabeled duplicate stop.
+                // The identifier stays discoverable to XCUITest even while hidden.
                 RoomAvatarImage(avatar: context.viewState.roomAvatar,
                                 avatarSize: .room(on: .timeline),
                                 mediaProvider: context.mediaProvider)
                     .accessibilityIdentifier(A11yIdentifiers.roomScreen.avatar)
+                    .accessibilityHidden(true)
             }
         }
     }

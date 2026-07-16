@@ -19,6 +19,9 @@ struct RoomHeaderView: View {
     let roomName: String
     var roomSubtitle: String?
     let roomAvatar: RoomAvatar
+    // TG-SKIN: RoomScreen shows its own trailing toolbar avatar instead, so it opts out;
+    // every other consumer (Thread/Space/JoinRoom headers) keeps the old inline avatar.
+    var showsAvatar = true
     var dmRecipientDetails = DMRecipientDetails()
     var roomHistorySharingState: RoomHistorySharingState?
     
@@ -44,42 +47,56 @@ struct RoomHeaderView: View {
         }
     }
     
-    // TG-SKIN: the avatar moved to the trailing toolbar item, so this is just the
-    // centered title/subtitle stack — no leading alignment or avatar here anymore.
+    // TG-SKIN: title/subtitle stack is always centered (on itself); the avatar is only
+    // drawn here for consumers that haven't moved it to a trailing toolbar item.
     private var content: some View {
-        HStack(spacing: 4) {
-            VStack(alignment: .center, spacing: 0) {
-                HStack(spacing: 8) {
-                    Text(roomName)
-                        .lineLimit(1)
-                        .font(.compound.bodyMDSemibold)
-                        .foregroundStyle(.compound.textPrimary)
-                        .accessibilityIdentifier(A11yIdentifiers.roomScreen.name)
-                    
-                    if let statusEmoji = dmRecipientDetails.status?.displayed?.emoji {
-                        Text(String(statusEmoji))
-                            .font(.compound.bodyLG)
+        HStack(spacing: 8) {
+            if showsAvatar {
+                avatarImage
+                    .accessibilityHidden(true)
+            }
+            
+            HStack(spacing: 4) {
+                VStack(alignment: .center, spacing: 0) {
+                    HStack(spacing: 8) {
+                        Text(roomName)
+                            .lineLimit(1)
+                            .font(.compound.bodyMDSemibold)
                             .foregroundStyle(.compound.textPrimary)
+                            .accessibilityIdentifier(A11yIdentifiers.roomScreen.name)
+                        
+                        if let statusEmoji = dmRecipientDetails.status?.displayed?.emoji {
+                            Text(String(statusEmoji))
+                                .font(.compound.bodyLG)
+                                .foregroundStyle(.compound.textPrimary)
+                        }
+                    }
+                    
+                    if let roomSubtitle {
+                        Text(roomSubtitle)
+                            .lineLimit(1)
+                            .font(.compound.bodyXS)
+                            .foregroundStyle(.compound.textSecondary)
                     }
                 }
                 
-                if let roomSubtitle {
-                    Text(roomSubtitle)
-                        .lineLimit(1)
-                        .font(.compound.bodyXS)
-                        .foregroundStyle(.compound.textSecondary)
+                if let verificationState = dmRecipientDetails.verification {
+                    VerificationBadge(verificationState: verificationState, size: .xSmall, relativeTo: .compound.bodyMDSemibold)
+                }
+                
+                if let historySharingIcon {
+                    CompoundIcon(historySharingIcon, size: .xSmall, relativeTo: .compound.bodyMDSemibold)
+                        .foregroundStyle(.compound.iconInfoPrimary)
                 }
             }
-            
-            if let verificationState = dmRecipientDetails.verification {
-                VerificationBadge(verificationState: verificationState, size: .xSmall, relativeTo: .compound.bodyMDSemibold)
-            }
-            
-            if let historySharingIcon {
-                CompoundIcon(historySharingIcon, size: .xSmall, relativeTo: .compound.bodyMDSemibold)
-                    .foregroundStyle(.compound.iconInfoPrimary)
-            }
         }
+    }
+    
+    private var avatarImage: some View {
+        RoomAvatarImage(avatar: roomAvatar,
+                        avatarSize: .room(on: .timeline),
+                        mediaProvider: mediaProvider)
+            .accessibilityIdentifier(A11yIdentifiers.roomScreen.avatar)
     }
     
     private var historySharingIcon: KeyPath<CompoundIcons, Image>? {
