@@ -94,6 +94,18 @@ struct UserSessionFlowCoordinatorTests {
     }
     
     @Test
+    mutating func chatBackupSettingsRouteSelectsSettingsTab() async throws {
+        try await process(route: .chatBackupSettings, expectedSelectedTab: .settings)
+        
+        #expect(tabCoordinator?.selectedTab == .settings)
+        #expect(tabCoordinator?.sheetCoordinator == nil, "Settings must be a tab, not a sheet.")
+        
+        let settingsStack = tabCoordinator?.tabCoordinators.last as? NavigationStackCoordinator
+        #expect(settingsStack?.rootCoordinator is SettingsScreenCoordinator, "The last tab's root must remain the settings screen.")
+        #expect(settingsStack?.stackCoordinators.isEmpty == false, "The encryption settings flow should have pushed a screen onto the settings stack.")
+    }
+    
+    @Test
     mutating func roomRouteWhileSettingsTabSelected() async throws {
         try await process(route: .settings, expectedSelectedTab: .settings)
         #expect(tabCoordinator?.selectedTab == .settings)
@@ -112,7 +124,7 @@ struct UserSessionFlowCoordinatorTests {
     }
     
     @Test
-    mutating func roomPresentationClearsSettings() async throws {
+    mutating func roomRouteSwitchesToChatsTab() async throws {
         try await process(route: .settings, expectedSelectedTab: .settings)
         #expect(tabCoordinator?.selectedTab == .settings)
         #expect(detailCoordinator == nil)
@@ -263,19 +275,12 @@ struct UserSessionFlowCoordinatorTests {
     // MARK: - Helpers
     
     private func process(route: AppRoute,
-                         expectedUserSessionState: UserSessionFlowCoordinator.State? = nil,
                          expectedChatsState: ChatsTabFlowCoordinatorStateMachine.State? = nil,
                          expectedSelectedTab: UserSessionFlowCoordinator.HomeTab? = nil) async throws {
         // Keep the previous root coordinator alive while waiting, otherwise a newly presented
         // coordinator could be allocated at the same address and be mistaken for it below.
         let previousDetailRootCoordinator = chatsSplitCoordinator?.detailRootCoordinator
         let previousDetailRootCoordinatorID = previousDetailRootCoordinator.map { ObjectIdentifier($0) }
-        
-        let deferredUserSession: DeferredFulfillment<UserSessionFlowCoordinator.State>? = if let expectedUserSessionState {
-            deferFulfillment(stateMachineFactory.userSessionFlowStatePublisher) { $0 == expectedUserSessionState }
-        } else {
-            nil
-        }
         
         let deferredChatsState: DeferredFulfillment<ChatsTabFlowCoordinatorStateMachine.State>? = if let expectedChatsState {
             deferFulfillment(stateMachineFactory.chatsTabFlowStatePublisher) { $0 == expectedChatsState }
@@ -284,7 +289,6 @@ struct UserSessionFlowCoordinatorTests {
         }
         
         userSessionFlowCoordinator.handleAppRoute(route, animated: true)
-        try await deferredUserSession?.fulfill()
         try await deferredChatsState?.fulfill()
         
         if let expectedSelectedTab {
@@ -295,19 +299,6 @@ struct UserSessionFlowCoordinatorTests {
         
         // The state machines' states change before the coordinators have updated their stacks,
         // so also wait for the navigation side effects implied by the expected states.
-        switch expectedUserSessionState {
-        case .settingsScreen:
-            let tabCoordinator = try #require(tabCoordinator)
-            let deferredSheet = deferFulfillment(tabCoordinator.observe(\.sheetCoordinatorID)) { $0 != nil }
-            try await deferredSheet.fulfill()
-        case .tabBar:
-            let tabCoordinator = try #require(tabCoordinator)
-            let deferredSheet = deferFulfillment(tabCoordinator.observe(\.sheetCoordinatorID)) { $0 == nil }
-            try await deferredSheet.fulfill()
-        default:
-            break
-        }
-        
         switch expectedChatsState {
         case .roomList(detailState: .some(.room)):
             let splitCoordinator = try #require(chatsSplitCoordinator)
