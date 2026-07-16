@@ -125,8 +125,8 @@ struct TimelineCollapseButtonLabel: View {
                 .frame(height: lineHeight, alignment: .center)
                 .padding(.vertical, 6)
                 .padding(.horizontal, 12)
-                .font(.compound.bodyMD)
-                .foregroundColor(.compound.textPrimary)
+                .font(.compound.bodySM) // TG-SKIN: match unselected pill text
+                .foregroundColor(.compound.textActionAccent) // TG-SKIN
         }
     }
 }
