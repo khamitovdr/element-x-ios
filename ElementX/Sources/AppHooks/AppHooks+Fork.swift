@@ -14,6 +14,7 @@ extension AppHooks {
     /// so this concrete method wins and registers the fork's hooks.
     func setUp() {
         registerAppSettingsHook(ForkAppSettingsHook())
+        registerCompoundHook(TelegramThemeHook())
     }
 }
 #endif

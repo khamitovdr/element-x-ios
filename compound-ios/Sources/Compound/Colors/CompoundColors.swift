@@ -47,24 +47,25 @@ public class CompoundColors {
     }
     
     init() {
-        let tokens = CompoundColorTokens()
-        self.tokens = tokens
-        
-        decorativeColors = [
-            .init(background: tokens.bgDecorative1, text: tokens.textDecorative1),
-            .init(background: tokens.bgDecorative2, text: tokens.textDecorative2),
-            .init(background: tokens.bgDecorative3, text: tokens.textDecorative3),
-            .init(background: tokens.bgDecorative4, text: tokens.textDecorative4),
-            .init(background: tokens.bgDecorative5, text: tokens.textDecorative5),
-            .init(background: tokens.bgDecorative6, text: tokens.textDecorative6)
-        ]
+        tokens = CompoundColorTokens()
     }
     
     // MARK: - Decorative Colors
     
     // Used to determine the background and text colors of avatars, usernames etc.
     
-    let decorativeColors: [DecorativeColor]
+    // TG-SKIN: computed (upstream: `let` captured in init) so runtime token
+    // overrides reach avatars/sender names. See docs/fork-slimming.md.
+    // Explicit subscript form: SwiftFormat would strip a bare `self.` and the
+    // dynamic-member lookup with it.
+    var decorativeColors: [DecorativeColor] {
+        [.init(background: self[dynamicMember: \.bgDecorative1], text: self[dynamicMember: \.textDecorative1]),
+         .init(background: self[dynamicMember: \.bgDecorative2], text: self[dynamicMember: \.textDecorative2]),
+         .init(background: self[dynamicMember: \.bgDecorative3], text: self[dynamicMember: \.textDecorative3]),
+         .init(background: self[dynamicMember: \.bgDecorative4], text: self[dynamicMember: \.textDecorative4]),
+         .init(background: self[dynamicMember: \.bgDecorative5], text: self[dynamicMember: \.textDecorative5]),
+         .init(background: self[dynamicMember: \.bgDecorative6], text: self[dynamicMember: \.textDecorative6])]
+    }
     
     public func decorativeColor(for contentID: String) -> DecorativeColor {
         decorativeColors[contentID.hashCode]
