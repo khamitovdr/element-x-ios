@@ -64,4 +64,20 @@ struct TelegramThemeHookTests {
         hooks.setUp()
         #expect(hooks.compoundHook is TelegramThemeHook)
     }
+    
+    @Test
+    func badgeContentNeverMatchesBadgeBackground() {
+        let hook = TelegramThemeHook()
+        hook.override(colors: Color.compound, uiColors: UIColor.compound)
+        defer { hook.removeOverrides(colors: Color.compound, uiColors: UIColor.compound) }
+        
+        for traits in [UITraitCollection(userInterfaceStyle: .light), UITraitCollection(userInterfaceStyle: .dark)] {
+            #expect(UIColor.compound.textBadgeAccent.resolvedColor(with: traits).hexString
+                != UIColor.compound.bgBadgeAccent.resolvedColor(with: traits).hexString)
+            #expect(UIColor.compound.textBadgeInfo.resolvedColor(with: traits).hexString
+                != UIColor.compound.bgBadgeInfo.resolvedColor(with: traits).hexString)
+            #expect(UIColor.compound.iconInfoPrimary.resolvedColor(with: traits).hexString
+                != UIColor.compound.bgBadgeInfo.resolvedColor(with: traits).hexString)
+        }
+    }
 }

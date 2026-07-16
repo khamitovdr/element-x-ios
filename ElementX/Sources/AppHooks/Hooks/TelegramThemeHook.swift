@@ -24,6 +24,7 @@ struct TelegramThemeHook: CompoundHookProtocol {
         }
     }
     
+    // @MainActor here and on `mappings` is compiler-required: KeyPath isn't Sendable and statics don't inherit type isolation.
     /// Restores Compound defaults. Test-only; production never unsets the theme.
     @MainActor func removeOverrides(colors: CompoundColors, uiColors: CompoundUIColors) {
         for mapping in Self.mappings {
@@ -44,13 +45,13 @@ struct TelegramThemeHook: CompoundHookProtocol {
         (\.textActionAccent, \.textActionAccent, P.dynamic(day: 0x0088FF, night: 0x3E88F7)), // defaultDayAccentColor / dark accent
         (\.textActionPrimary, \.textActionPrimary, P.dynamic(day: 0x0088FF, night: 0x3E88F7)), // rootController.navigationBar.buttonColor
         (\.textActionSuccess, \.textActionSuccess, P.dynamic(day: 0x26972C, night: 0x30CF30)), // list.freeTextSuccessColor
-        (\.textOnSolidPrimary, \.textOnSolidPrimary, P.dynamic(day: 0xFFFFFF, night: 0xFFFFFF)), // inputPanel.actionControlForegroundColor
+        (\.textOnSolidPrimary, \.textOnSolidPrimary, P.dynamic(day: 0xFFFFFF, night: 0xFFFFFF)), // inputPanel.actionControlForegroundColor (night: blue-accent variant, not monochrome Night's black)
         (\.textLinkExternal, \.textLinkExternal, P.dynamic(day: 0x0088FF, night: 0x3E88F7)), // list.itemAccentColor
         (\.textCriticalPrimary, \.textCriticalPrimary, P.dynamic(day: 0xFF3B30, night: 0xEB5545)), // list.itemDestructiveColor
         (\.textSuccessPrimary, \.textSuccessPrimary, P.dynamic(day: 0x26972C, night: 0x30CF30)), // list.freeTextSuccessColor
         (\.textInfoPrimary, \.textInfoPrimary, P.dynamic(day: 0x0088FF, night: 0x3E88F7)), // derived: accent
-        (\.textBadgeAccent, \.textBadgeAccent, P.dynamic(day: 0xFFFFFF, night: 0xFFFFFF)), // chatList.unreadBadgeActiveTextColor
-        (\.textBadgeInfo, \.textBadgeInfo, P.dynamic(day: 0xFFFFFF, night: 0xFFFFFF)), // navigationBar.badgeTextColor
+        (\.textBadgeAccent, \.textBadgeAccent, P.dynamic(day: 0x0088FF, night: 0x3E88F7)), // derived: accent content on pale bgBadgeAccent (upstream pairs dark-on-pale)
+        (\.textBadgeInfo, \.textBadgeInfo, P.dynamic(day: 0x0088FF, night: 0x3E88F7)), // derived: accent content on pale bgBadgeInfo
         
         // MARK: Text decorative (sender names) — Telegram peer-name colors, displayOrder minus pink
         
@@ -108,7 +109,7 @@ struct TelegramThemeHook: CompoundHookProtocol {
         (\.bgBadgeDefault, \.bgBadgeDefault, P.dynamic(day: 0x0088FF, night: 0x3E88F7)), // chatList.unreadBadgeActiveBackgroundColor
         (\.bgBadgePrimary, \.bgBadgePrimary, P.dynamic(day: 0x0088FF, night: 0x3E88F7)), // chatList.unreadBadgeActiveBackgroundColor
         (\.bgBadgeSecondary, \.bgBadgeSecondary, P.dynamic(day: 0xB6B6BB, night: 0x666666)), // chatList.unreadBadgeInactiveBackgroundColor
-        (\.bgBadgeInfo, \.bgBadgeInfo, P.dynamic(day: 0x0088FF, night: 0x3E88F7)), // derived: accent badge
+        (\.bgBadgeInfo, \.bgBadgeInfo, P.dynamic(day: 0xD9EBFF, night: 0x1C2E4A)), // derived: pale accent (solid accent made iconInfoPrimary invisible on it)
         
         // MARK: Decorative backgrounds (avatars) — derived pastels of the peer-name colors
         
