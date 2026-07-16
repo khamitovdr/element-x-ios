@@ -13,6 +13,7 @@ struct TimelineItemBubbledStylerView<Content: View>: View {
     @EnvironmentObject private var context: TimelineViewModel.Context
     @Environment(\.timelineGroupStyle) private var timelineGroupStyle
     @Environment(\.focussedEventID) private var focussedEventID
+    @Environment(\.colorScheme) private var colorScheme
     
     let timelineItem: EventBasedTimelineItemProtocol
     let adjustedDeliveryStatus: TimelineItemDeliveryStatus?
@@ -199,9 +200,16 @@ struct TimelineItemBubbledStylerView<Content: View>: View {
                                   adjustedDeliveryStatus: adjustedDeliveryStatus,
                                   hasContentScanningFailure: hasContentScanningFailure,
                                   context: context)
+            // TG-SKIN: outgoing bubble content renders with dark-variant tokens (white text etc.)
+            // even in light mode, matching Telegram's light-on-blue bubbles. Placed before
+            // `.bubbleBackground` so the gradient (a sibling added by that modifier, reading the
+            // real `colorScheme`) isn't flipped too. Known quirk: links still render dark-accent
+            // blue-on-blue in outgoing bubbles — acceptable for this pass, revisit on polish.
+            .environment(\.colorScheme, timelineItem.isOutgoing && colorScheme == .light ? .dark : colorScheme)
             .bubbleBackground(isOutgoing: timelineItem.isOutgoing,
                               insets: timelineItem.bubbleInsets(hasContentScanningFailure: hasContentScanningFailure),
                               color: hasContentScanningFailure ? .compound.bgCriticalSubtle : timelineItem.bubbleBackgroundColor,
+                              usesDefaultBubbleColor: !hasContentScanningFailure && timelineItem.usesDefaultBubbleColor,
                               borderColor: hasContentScanningFailure ? .compound.borderCriticalSubtle : nil)
     }
     
@@ -254,18 +262,25 @@ struct TimelineItemBubbledStylerView<Content: View>: View {
 }
 
 private extension EventBasedTimelineItemProtocol {
-    var bubbleBackgroundColor: Color? {
-        let defaultColor: Color = isOutgoing ? .compound._bgBubbleOutgoing : .compound._bgBubbleIncoming
-        
+    /// TG-SKIN: whether this item renders with the plain default bubble token, as opposed to no
+    /// background at all (bare stickers/media) or an item-specific override (critical scanning
+    /// failure, handled separately in `messageBubble`). Outgoing bubbles in this state get the
+    /// screen-anchored gradient instead of a flat fill — see `bubbleBackground(usesDefaultBubbleColor:)`.
+    var usesDefaultBubbleColor: Bool {
         switch self {
         case is ImageRoomTimelineItem, is VideoRoomTimelineItem:
             // In case a reply detail or a thread decorator is present we render the color and the padding
-            return properties.replyDetails != nil || properties.isThreaded || hasMediaCaption ? defaultColor : nil
+            return properties.replyDetails != nil || properties.isThreaded || hasMediaCaption
         case is StickerRoomTimelineItem:
-            return nil
+            return false
         default:
-            return defaultColor
+            return true
         }
+    }
+    
+    var bubbleBackgroundColor: Color? {
+        guard usesDefaultBubbleColor else { return nil }
+        return isOutgoing ? .compound._bgBubbleOutgoing : .compound._bgBubbleIncoming
     }
     
     /// The insets for the full bubble content.

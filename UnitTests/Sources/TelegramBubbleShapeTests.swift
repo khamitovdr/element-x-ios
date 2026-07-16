@@ -5,9 +5,11 @@
 // Please see LICENSE files in the repository root for full details.
 //
 
+import Compound
 @testable import ElementX
 import SwiftUI
 import Testing
+import UIKit
 
 struct TelegramBubbleShapeTests {
     let rect = CGRect(x: 0, y: 0, width: 100, height: 60)
@@ -59,5 +61,19 @@ struct TelegramBubbleShapeTests {
         let incoming = TelegramBubbleShape(groupStyle: .single, isOutgoing: false).path(in: rect)
         #expect(incoming.contains(CGPoint(x: rect.minX + 10, y: rect.maxY - 10)))
         #expect(incoming.contains(CGPoint(x: rect.minX + 15, y: rect.maxY - 5)))
+    }
+}
+
+struct TelegramBubbleColorTests {
+    @Test
+    func bubbleTokensCarryTelegramValues() {
+        let light = UITraitCollection(userInterfaceStyle: .light)
+        let dark = UITraitCollection(userInterfaceStyle: .dark)
+        let incoming = UIColor(Color.compound._bgBubbleIncoming)
+        #expect(incoming.resolvedColor(with: light).hexString == "#F1F1F4")
+        #expect(incoming.resolvedColor(with: dark).hexString == "#1D1D1D")
+        let outgoing = UIColor(Color.compound._bgBubbleOutgoing)
+        #expect(outgoing.resolvedColor(with: light).hexString == "#2B9DEF") // gradient midpoint, derived
+        #expect(outgoing.resolvedColor(with: dark).hexString == "#30A2FC") // gradient midpoint, derived
     }
 }
