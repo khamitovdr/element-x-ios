@@ -83,9 +83,25 @@ struct UserSessionFlowCoordinatorTests {
     }
     
     @Test
-    mutating func settingsPresentation() async throws {
-        try await process(route: .settings, expectedUserSessionState: .settingsScreen)
-        #expect((tabCoordinator?.sheetCoordinator as? NavigationStackCoordinator)?.rootCoordinator is SettingsScreenCoordinator)
+    mutating func settingsRouteSelectsSettingsTab() async throws {
+        try await process(route: .settings, expectedSelectedTab: .settings)
+        
+        #expect(tabCoordinator?.selectedTab == .settings)
+        #expect(tabCoordinator?.sheetCoordinator == nil, "Settings must be a tab, not a sheet.")
+        
+        let settingsStack = tabCoordinator?.tabCoordinators.last as? NavigationStackCoordinator
+        #expect(settingsStack?.rootCoordinator is SettingsScreenCoordinator, "The last tab's root must be the settings screen.")
+    }
+    
+    @Test
+    mutating func roomRouteWhileSettingsTabSelected() async throws {
+        try await process(route: .settings, expectedSelectedTab: .settings)
+        #expect(tabCoordinator?.selectedTab == .settings)
+        
+        try await process(route: .room(roomID: "1", via: []),
+                          expectedChatsState: .roomList(detailState: .room(roomID: "1")),
+                          expectedSelectedTab: .chats)
+        #expect(tabCoordinator?.selectedTab == .chats, "Room routes must switch back to the chats tab.")
     }
     
     @Test
@@ -97,13 +113,13 @@ struct UserSessionFlowCoordinatorTests {
     
     @Test
     mutating func roomPresentationClearsSettings() async throws {
-        try await process(route: .settings, expectedUserSessionState: .settingsScreen)
-        #expect((tabCoordinator?.sheetCoordinator as? NavigationStackCoordinator)?.rootCoordinator is SettingsScreenCoordinator)
+        try await process(route: .settings, expectedSelectedTab: .settings)
+        #expect(tabCoordinator?.selectedTab == .settings)
         #expect(detailCoordinator == nil)
         
         try await process(route: .room(roomID: "1", via: []),
-                          expectedUserSessionState: .tabBar,
-                          expectedChatsState: .roomList(detailState: .room(roomID: "1")))
+                          expectedChatsState: .roomList(detailState: .room(roomID: "1")),
+                          expectedSelectedTab: .chats)
         #expect(tabCoordinator?.sheetCoordinator == nil)
         #expect(detailNavigationStack?.rootCoordinator is RoomScreenCoordinator)
         #expect(detailCoordinator != nil)
@@ -127,14 +143,14 @@ struct UserSessionFlowCoordinatorTests {
     
     @Test
     mutating func shareMediaRouteWithoutRoom() async throws {
-        try await process(route: .settings, expectedUserSessionState: .settingsScreen)
-        #expect((tabCoordinator?.sheetCoordinator as? NavigationStackCoordinator)?.rootCoordinator is SettingsScreenCoordinator)
+        try await process(route: .settings, expectedSelectedTab: .settings)
+        #expect(tabCoordinator?.selectedTab == .settings)
         #expect(chatsSplitCoordinator?.sheetCoordinator == nil)
         
         let sharePayload: ShareExtensionPayload = .mediaFiles(roomID: nil, mediaFiles: [.init(url: .picturesDirectory, suggestedName: nil)])
         try await process(route: .share(sharePayload),
-                          expectedUserSessionState: .tabBar,
-                          expectedChatsState: .shareExtensionRoomList(sharePayload: sharePayload))
+                          expectedChatsState: .shareExtensionRoomList(sharePayload: sharePayload),
+                          expectedSelectedTab: .chats)
         #expect(tabCoordinator?.sheetCoordinator == nil)
         #expect((chatsSplitCoordinator?.sheetCoordinator as? NavigationStackCoordinator)?.rootCoordinator is RoomSelectionScreenCoordinator)
     }
@@ -161,14 +177,14 @@ struct UserSessionFlowCoordinatorTests {
     
     @Test
     mutating func shareTextRouteWithoutRoom() async throws {
-        try await process(route: .settings, expectedUserSessionState: .settingsScreen)
-        #expect((tabCoordinator?.sheetCoordinator as? NavigationStackCoordinator)?.rootCoordinator is SettingsScreenCoordinator)
+        try await process(route: .settings, expectedSelectedTab: .settings)
+        #expect(tabCoordinator?.selectedTab == .settings)
         #expect(chatsSplitCoordinator?.sheetCoordinator == nil)
         
         let sharePayload: ShareExtensionPayload = .text(roomID: nil, text: "Important Text")
         try await process(route: .share(sharePayload),
-                          expectedUserSessionState: .tabBar,
-                          expectedChatsState: .shareExtensionRoomList(sharePayload: sharePayload))
+                          expectedChatsState: .shareExtensionRoomList(sharePayload: sharePayload),
+                          expectedSelectedTab: .chats)
         #expect(tabCoordinator?.sheetCoordinator == nil)
         #expect((chatsSplitCoordinator?.sheetCoordinator as? NavigationStackCoordinator)?.rootCoordinator is RoomSelectionScreenCoordinator)
     }
@@ -248,7 +264,8 @@ struct UserSessionFlowCoordinatorTests {
     
     private func process(route: AppRoute,
                          expectedUserSessionState: UserSessionFlowCoordinator.State? = nil,
-                         expectedChatsState: ChatsTabFlowCoordinatorStateMachine.State? = nil) async throws {
+                         expectedChatsState: ChatsTabFlowCoordinatorStateMachine.State? = nil,
+                         expectedSelectedTab: UserSessionFlowCoordinator.HomeTab? = nil) async throws {
         // Keep the previous root coordinator alive while waiting, otherwise a newly presented
         // coordinator could be allocated at the same address and be mistaken for it below.
         let previousDetailRootCoordinator = chatsSplitCoordinator?.detailRootCoordinator
@@ -269,6 +286,12 @@ struct UserSessionFlowCoordinatorTests {
         userSessionFlowCoordinator.handleAppRoute(route, animated: true)
         try await deferredUserSession?.fulfill()
         try await deferredChatsState?.fulfill()
+        
+        if let expectedSelectedTab {
+            let tabCoordinator = try #require(tabCoordinator)
+            let deferredTab = deferFulfillment(tabCoordinator.observe(\.selectedTab)) { $0 == expectedSelectedTab }
+            try await deferredTab.fulfill()
+        }
         
         // The state machines' states change before the coordinators have updated their stacks,
         // so also wait for the navigation side effects implied by the expected states.
