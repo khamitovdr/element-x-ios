@@ -20,31 +20,21 @@ struct RoomListFilterView: View {
     }
 }
 
+// TG-SKIN: Telegram folder-style text tabs — accent text + underline when selected, no capsule background/stroke.
 private struct FilterToggleStyle: ToggleStyle {
-    private func strokeColor(isOn: Bool) -> Color {
-        isOn ? .compound.bgActionPrimaryRest : .compound.borderInteractiveSecondary
-    }
-    
-    private func backgroundColor(isOn: Bool) -> Color {
-        isOn ? .compound.bgActionPrimaryRest : .compound.bgCanvasDefault
-    }
-    
-    private func foregroundColor(isOn: Bool) -> Color {
-        isOn ? .compound.textOnSolidPrimary : .compound.textPrimary
-    }
-    
     func makeBody(configuration: Configuration) -> some View {
-        let shape = RoundedRectangle(cornerRadius: 20)
         configuration.label
-            .font(.compound.bodyMD)
-            .foregroundColor(foregroundColor(isOn: configuration.isOn))
+            .font(configuration.isOn ? .compound.bodyMDSemibold : .compound.bodyMD)
+            .foregroundColor(configuration.isOn ? .compound.textActionAccent : .compound.textSecondary)
             .padding(.horizontal, 12)
             .padding(.vertical, 7)
-            .background(shape.fill(backgroundColor(isOn: configuration.isOn)))
-            .overlay {
-                shape
-                    .inset(by: 0.5)
-                    .stroke(strokeColor(isOn: configuration.isOn))
+            .overlay(alignment: .bottom) {
+                if configuration.isOn {
+                    Capsule()
+                        .fill(Color.compound.textActionAccent)
+                        .frame(height: 3)
+                        .padding(.horizontal, 8)
+                }
             }
             .drawingGroup()
             // The button breaks the animation for some reason, so better to use the label directly with an onTapGesture
