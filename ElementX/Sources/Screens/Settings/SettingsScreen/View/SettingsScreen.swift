@@ -42,6 +42,11 @@ struct SettingsScreen: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbarVisibility(context.viewState.navigationBarVisibility, for: .navigationBar)
         .toolbar { toolbar }
+        // TG-SKIN: settings is a persistent tab, so `.onAppear` (unlike `.task`) re-fires on every
+        // tab re-selection, retrying profile/account fetches that may have failed while offline.
+        .onAppear {
+            context.send(viewAction: .appeared)
+        }
     }
     
     private var userSection: some View {

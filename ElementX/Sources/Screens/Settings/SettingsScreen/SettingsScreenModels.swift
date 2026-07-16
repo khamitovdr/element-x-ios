@@ -60,6 +60,8 @@ struct SettingsScreenViewStateBindings {
 }
 
 enum SettingsScreenViewAction {
+    // TG-SKIN: sent from `.onAppear`, which re-fires each time settings' persistent tab is re-selected.
+    case appeared
     case close
     case userDetails
     case analytics
