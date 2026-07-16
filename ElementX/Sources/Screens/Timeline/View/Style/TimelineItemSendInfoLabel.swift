@@ -63,6 +63,9 @@ private struct TimelineItemSendInfoLabel: View {
         case .sendingFailed: \.errorSolid
         case .encryptionAuthenticity(let authenticity): authenticity.icon
         case .encryptionForwarder: \.info
+        // TG-SKIN: same keypaths as the below-bubble `TimelineDeliveryStatusView`, now inline.
+        case .delivery(.sending): \.circle
+        case .delivery(.sent): \.checkCircle
         case .none: nil
         }
     }
@@ -72,6 +75,8 @@ private struct TimelineItemSendInfoLabel: View {
         case .sendingFailed: L10n.commonSendingFailed
         case .encryptionAuthenticity(let authenticity): authenticity.message
         case .encryptionForwarder(let forwarder): forwarder.message
+        case .delivery(.sending): L10n.commonSending
+        case .delivery(.sent): L10n.commonSent
         case .none: nil
         }
     }
@@ -120,6 +125,8 @@ private struct TimelineItemSendInfo {
         case sendingFailed
         case encryptionAuthenticity(EncryptionAuthenticity)
         case encryptionForwarder(TimelineItemKeyForwarder)
+        /// TG-SKIN: the inline delivery tick shown after the timestamp on outgoing items.
+        case delivery(TimelineDeliveryStatusView.Status)
     }
     
     /// Describes how the content and the send info should be arranged inside a bubble
@@ -143,6 +150,9 @@ private struct TimelineItemSendInfo {
             authenticity.foregroundStyle
         case .encryptionForwarder:
             .compound.textSecondary
+        case .delivery:
+            // TG-SKIN: same colour as the timestamp text — no extra tinting for the tick.
+            .compound.textSecondary
         case .none:
             .compound.textSecondary
         }
@@ -162,6 +172,13 @@ private extension TimelineItemSendInfo {
             .encryptionAuthenticity(authenticity)
         } else if let forwarder = timelineItem.properties.encryptionForwarder {
             .encryptionForwarder(forwarder)
+        } else if timelineItem.isOutgoing, case .sending = adjustedDeliveryStatus {
+            // TG-SKIN: inline delivery tick next to the timestamp, Telegram-style.
+            .delivery(.sending)
+        } else if timelineItem.isOutgoing {
+            // TG-SKIN: `.sent` and `nil` (no pending local echo) both render as sent, matching
+            // the below-bubble badge's previous default before the tick moved inline.
+            .delivery(.sent)
         } else {
             nil
         }
@@ -251,6 +268,15 @@ struct TimelineItemSendInfoLabel_Previews: PreviewProvider, TestablePreview {
             TimelineItemSendInfoLabel(sendInfo: .init(itemID: .randomEvent,
                                                       localizedString: "09:47 AM",
                                                       status: .encryptionForwarder(.test),
+                                                      layoutType: .horizontal()))
+            // TG-SKIN: inline delivery tick states, shown after the timestamp on outgoing items.
+            TimelineItemSendInfoLabel(sendInfo: .init(itemID: .randomEvent,
+                                                      localizedString: "09:47 AM",
+                                                      status: .delivery(.sending),
+                                                      layoutType: .horizontal()))
+            TimelineItemSendInfoLabel(sendInfo: .init(itemID: .randomEvent,
+                                                      localizedString: "09:47 AM",
+                                                      status: .delivery(.sent),
                                                       layoutType: .horizontal()))
         }
     }

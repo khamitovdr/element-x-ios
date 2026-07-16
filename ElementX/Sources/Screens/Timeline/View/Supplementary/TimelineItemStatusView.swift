@@ -36,17 +36,22 @@ struct TimelineItemStatusView: View {
     
     @ViewBuilder
     var deliveryStatusBadge: some View {
-        switch adjustedDeliveryStatus {
-        case .sending:
-            TimelineDeliveryStatusView(deliveryStatus: .sending)
-        case .sent, .none:
-            if isLastOutgoingMessage {
-                // We only display the sent icon for the latest outgoing message
-                TimelineDeliveryStatusView(deliveryStatus: .sent)
-            }
-        case .sendingFailed:
-            // Bubbles handle the case internally
+        if timelineItem.isOutgoing {
+            // TG-SKIN: the tick now lives inline next to the timestamp (see `TimelineItemSendInfoLabel`).
             EmptyView()
+        } else {
+            switch adjustedDeliveryStatus {
+            case .sending:
+                TimelineDeliveryStatusView(deliveryStatus: .sending)
+            case .sent, .none:
+                if isLastOutgoingMessage {
+                    // We only display the sent icon for the latest outgoing message
+                    TimelineDeliveryStatusView(deliveryStatus: .sent)
+                }
+            case .sendingFailed:
+                // Bubbles handle the case internally
+                EmptyView()
+            }
         }
     }
     
