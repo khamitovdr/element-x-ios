@@ -312,6 +312,22 @@ struct HomeScreenRoomTests {
         #expect(room.badges.unreadCount == 0)
     }
     
+    // Unmuted, mentions-only room with unread messages but no unread notifications → falls back to the message count.
+    @Test
+    mutating func unreadCountForMentionsOnlyRoomFallsBackToMessageCount() {
+        setupRoomSummary(isMarkedUnread: false,
+                         unreadMessagesCount: 7,
+                         unreadMentionsCount: 0,
+                         unreadNotificationsCount: 0,
+                         notificationMode: .mentionsAndKeywordsOnly,
+                         hasOngoingCall: false)
+        
+        let room = HomeScreenRoom(summary: roomSummary)
+        
+        #expect(room.badges.unreadCount == 7)
+        #expect(!room.badges.isMuted)
+    }
+    
     // Marked-unread with no real unread counts keeps the dot but the pill has nothing to show.
     @Test
     mutating func unreadCountEmptyPillWhenMarkedUnreadWithZeroCount() {

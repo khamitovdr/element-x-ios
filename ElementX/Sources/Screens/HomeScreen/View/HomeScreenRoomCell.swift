@@ -152,9 +152,11 @@ struct HomeScreenRoomCell: View {
                     mentionIcon
                 }
                 
+                // TG-SKIN: Telegram-style numeric pill.
                 if room.badges.unreadCount > 0 || room.badges.isDotShown {
                     TelegramUnreadBadge(count: room.badges.unreadCount, isMuted: room.badges.isMuted)
                         .accessibilityLabel(L10n.a11yNotificationsNewMessages)
+                        .accessibilityValue(room.badges.unreadCount > 0 ? String(room.badges.unreadCount) : "")
                 } else if room.isFavourite {
                     // TG-SKIN: Telegram shows the pin only when no unread badge; favourites map to pins.
                     CompoundIcon(\.pin, size: .custom(15), relativeTo: .compound.bodyMD)

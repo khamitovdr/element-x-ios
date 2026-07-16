@@ -276,8 +276,16 @@ extension HomeScreenRoom {
         let isMuteShown = summary.isMuted
         let isHighlighted = summary.isMarkedUnread || (!summary.isMuted && (summary.hasUnreadNotifications || summary.hasUnreadMentions)) || isUnseenInvite
         
-        // TG-SKIN: pill count, gated the same way as the dot above; muted rooms show the (grayed) message count instead.
-        let unreadCount = isDotShown ? Int(summary.isMuted ? summary.unreadMessagesCount : summary.unreadNotificationsCount) : 0
+        // TG-SKIN: Telegram-style numeric pill. Falls back to the message count when
+        // the room doesn't notify (muted or mentions-only) so the empty pill is
+        // reserved exclusively for marked-unread.
+        let unreadCount = if !isDotShown {
+            0
+        } else if !summary.isMuted, summary.hasUnreadNotifications {
+            Int(summary.unreadNotificationsCount)
+        } else {
+            Int(summary.unreadMessagesCount)
+        }
         
         let callBadge = if summary.hasOngoingCall {
             summary.activeCallIntent == .audio ? CallBadgeType.voice : CallBadgeType.video
