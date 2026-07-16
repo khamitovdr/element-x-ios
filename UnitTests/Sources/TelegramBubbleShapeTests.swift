@@ -62,6 +62,22 @@ struct TelegramBubbleShapeTests {
         #expect(incoming.contains(CGPoint(x: rect.minX + 10, y: rect.maxY - 10)))
         #expect(incoming.contains(CGPoint(x: rect.minX + 15, y: rect.maxY - 5)))
     }
+    
+    @Test
+    func tailTipOutsideBodyBoundsIsInsideThePath() {
+        // Regression for the gradient-fill bug: `.fill(.clear).background(gradient.clipShape(shape))`
+        // painted only the gradient view's own rectangular bounds, so the tail - which sits
+        // outside the content rect by design - never got filled even though `path(in:)` always
+        // included it. These probes sit strictly past `rect.maxX`/before `rect.minX`, i.e. inside
+        // the tail flange and nowhere near the body, so they only pass if whatever fills the path
+        // (flat colour or gradient) covers this region too. Fixed by filling the shape directly:
+        // `shape.fill(TelegramBubbleGradient.gradient(for:))`.
+        let outgoing = TelegramBubbleShape(groupStyle: .last, isOutgoing: true).path(in: rect)
+        #expect(outgoing.contains(CGPoint(x: rect.maxX + 2, y: rect.maxY - 2)))
+        
+        let incoming = TelegramBubbleShape(groupStyle: .last, isOutgoing: false).path(in: rect)
+        #expect(incoming.contains(CGPoint(x: rect.minX - 2, y: rect.maxY - 2)))
+    }
 }
 
 struct TelegramBubbleColorTests {

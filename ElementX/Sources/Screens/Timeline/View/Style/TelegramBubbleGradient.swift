@@ -7,23 +7,21 @@
 
 import SwiftUI
 
-/// Telegram's outgoing-bubble gradient is anchored to the SCREEN, not the bubble: the
-/// [top → bottom] colours span the visible viewport and each bubble shows the slice at
-/// its on-screen position, shifting as you scroll (WallpaperBackgroundNode.contentsRect
-/// behaviour — see the bubble reference doc). TG-SKIN (fork-owned).
-struct TelegramBubbleGradient: View {
-    @Environment(\.colorScheme) private var colorScheme
-    
-    var body: some View {
-        GeometryReader { geometry in
-            let frame = geometry.frame(in: .global)
-            let screenHeight = max(UIScreen.main.bounds.height, 1)
-            let colors = colorScheme == .dark
-                ? TelegramPalette.Chat.outgoingBubbleGradientNight
-                : TelegramPalette.Chat.outgoingBubbleGradientDay
-            LinearGradient(colors: colors.map { Color(TelegramPalette.rgb($0)) },
-                           startPoint: UnitPoint(x: 0.5, y: -frame.minY / max(frame.height, 1)),
-                           endPoint: UnitPoint(x: 0.5, y: (screenHeight - frame.minY) / max(frame.height, 1)))
-        }
+/// Telegram's outgoing-bubble gradient, applied bubble-locally: a plain top → bottom
+/// `LinearGradient` over the bubble's own bounds. Telegram itself anchors this gradient to
+/// the SCREEN, not the bubble, so each bubble shows the slice at its on-screen position,
+/// shifting as you scroll (`WallpaperBackgroundNode.contentsRect` behaviour — see the bubble
+/// reference doc). Reproducing that needs a live scroll-position feed a per-cell
+/// `UIHostingConfiguration` can't supply — `.global` geometry resolves cell-locally and never
+/// updates during UIKit scrolling — so screen-anchored authenticity is ledgered as follow-up
+/// polish, not implemented here. TG-SKIN (fork-owned).
+enum TelegramBubbleGradient {
+    static func gradient(for colorScheme: ColorScheme) -> LinearGradient {
+        let colors = colorScheme == .dark
+            ? TelegramPalette.Chat.outgoingBubbleGradientNight
+            : TelegramPalette.Chat.outgoingBubbleGradientDay
+        return LinearGradient(colors: colors.map { Color(TelegramPalette.rgb($0)) },
+                              startPoint: .top,
+                              endPoint: .bottom)
     }
 }
