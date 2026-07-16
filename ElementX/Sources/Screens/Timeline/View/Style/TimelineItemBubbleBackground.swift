@@ -20,16 +20,21 @@ extension View {
     ///     Defaults to false so unrelated callers (previews, swipe/long-press feedback) keep
     ///     their flat fill.
     ///   - borderColor: an optional colour for a border around the bubble
+    ///   - showsTail: TG-SKIN — false suppresses the tail regardless of group style, keeping
+    ///     16pt corners all round. Used by non-chat bubble presentations (e.g. the media
+    ///     browser) that don't want the timeline's grouped-tail affordance. Defaults to true.
     func bubbleBackground(isOutgoing: Bool = true,
                           insets: EdgeInsets = .init(top: 8, leading: 12, bottom: 8, trailing: 12),
                           color: @autoclosure @MainActor () -> Color? = .compound.bgSubtleSecondary,
                           usesDefaultBubbleColor: Bool = false,
-                          borderColor: @autoclosure @MainActor () -> Color? = nil) -> some View {
+                          borderColor: @autoclosure @MainActor () -> Color? = nil,
+                          showsTail: Bool = true) -> some View {
         modifier(TimelineItemBubbleBackgroundModifier(isOutgoing: isOutgoing,
                                                       insets: insets,
                                                       color: color(),
                                                       usesDefaultBubbleColor: usesDefaultBubbleColor,
-                                                      borderColor: borderColor()))
+                                                      borderColor: borderColor(),
+                                                      showsTail: showsTail))
     }
 }
 
@@ -42,6 +47,7 @@ private struct TimelineItemBubbleBackgroundModifier: ViewModifier {
     var color: Color?
     var usesDefaultBubbleColor: Bool
     var borderColor: Color?
+    var showsTail: Bool
     
     // TG-SKIN: Telegram's merged-corner bubble shape (with tail) replaces Element's fixed 12pt
     // corner radius. The tail draws outside the content bounds by design; backgrounds don't clip.
@@ -51,7 +57,7 @@ private struct TimelineItemBubbleBackgroundModifier: ViewModifier {
     // the tail. Default outgoing bubbles get a bubble-local gradient fill; everything else
     // (incoming, overrides, no background at all) keeps a flat fill.
     func body(content: Content) -> some View {
-        let shape = TelegramBubbleShape(groupStyle: timelineGroupStyle, isOutgoing: isOutgoing)
+        let shape = TelegramBubbleShape(groupStyle: timelineGroupStyle, isOutgoing: isOutgoing, showsTail: showsTail)
         content
             .padding(insets)
             .background {

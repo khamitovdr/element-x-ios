@@ -15,6 +15,10 @@ import SwiftUI
 struct TelegramBubbleShape: Shape {
     let groupStyle: TimelineGroupStyle
     let isOutgoing: Bool
+    /// TG-SKIN: false suppresses the tail regardless of `groupStyle`, for presentations (e.g.
+    /// the media browser) that reuse the bubble shape without the timeline's grouped-tail
+    /// affordance. Defaults to true so existing chat-timeline call sites are unaffected.
+    var showsTail = true
     
     private static let maxRadius: CGFloat = 16
     private static let minRadius: CGFloat = 8
@@ -25,7 +29,8 @@ struct TelegramBubbleShape: Shape {
     // Pattern-matching (rather than `==`) avoids `TimelineGroupStyle`'s main-actor-isolated `Equatable`
     // witness, which can't be called from a nonisolated context.
     var hasTail: Bool {
-        switch groupStyle {
+        guard showsTail else { return false }
+        return switch groupStyle {
         case .single, .last: true
         case .first, .middle: false
         }

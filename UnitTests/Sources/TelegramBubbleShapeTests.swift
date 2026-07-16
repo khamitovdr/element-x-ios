@@ -78,6 +78,19 @@ struct TelegramBubbleShapeTests {
         let incoming = TelegramBubbleShape(groupStyle: .last, isOutgoing: false).path(in: rect)
         #expect(incoming.contains(CGPoint(x: rect.minX - 2, y: rect.maxY - 2)))
     }
+    
+    @Test
+    func showsTailFalseSuppressesTheTailRegardlessOfGroupStyle() {
+        for groupStyle in [TimelineGroupStyle.single, .first, .middle, .last] {
+            #expect(!TelegramBubbleShape(groupStyle: groupStyle, isOutgoing: true, showsTail: false).hasTail)
+        }
+        // Real callers (media browser rows) never override `timelineGroupStyle` away from its
+        // `.single` default, so in production `showsTail: false` always pairs with `.single` -
+        // which already has full 16pt corners on both sides. Pin that concrete combination: the
+        // merged-corner probe (see `mergedCornersAreTighter`) must stay outside the path.
+        let probe = CGPoint(x: rect.maxX - 3, y: rect.minY + 3)
+        #expect(!TelegramBubbleShape(groupStyle: .single, isOutgoing: true, showsTail: false).path(in: rect).contains(probe))
+    }
 }
 
 struct TelegramBubbleColorTests {
