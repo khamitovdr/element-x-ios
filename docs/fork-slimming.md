@@ -108,6 +108,7 @@ snapshots stay on stock Compound colours by design.
 | File | Edit |
 |---|---|
 | `compound-ios/Sources/Compound/Colors/CompoundColors.swift` | `decorativeColors` computed instead of stored, so runtime overrides reach avatars/sender names |
+| `ElementX/Sources/AppHooks/Hooks/TelegramThemeHook.swift` | fork-owned file — its TG-SKIN mention is a doc-comment pointer to this playbook, not an at-risk upstream edit; nothing to re-apply |
 
 ### Post-merge re-skin checklist
 
