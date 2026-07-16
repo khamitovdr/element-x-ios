@@ -224,7 +224,7 @@ private struct MessageComposerStyleModifier<Header: View>: ViewModifier {
                 .background {
                     ZStack {
                         composerShape
-                            .fill(Color.compound.bgSubtleSecondary)
+                            .fill(Color.compound.bgCanvasDefault) // TG-SKIN: Telegram's white/black composer field.
                         composerShape
                             .stroke(Color.compound.borderInteractiveSecondary, lineWidth: 0.5)
                     }

@@ -19,7 +19,7 @@ struct RoomAttachmentPicker: View {
         Menu {
             menuContent
         } label: {
-            CompoundIcon(\.plus,
+            CompoundIcon(\.attachment, // TG-SKIN: Telegram attach
                          size: Compound.supportsGlass ? .medium : .small,
                          relativeTo: .compound.headingLG)
         }
