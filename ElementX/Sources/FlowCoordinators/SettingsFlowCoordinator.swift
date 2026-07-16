@@ -59,6 +59,12 @@ class SettingsFlowCoordinator: FlowCoordinatorProtocol {
     func handleAppRoute(_ appRoute: AppRoute, animated: Bool) {
         MXLog.info("Handling app route: \(appRoute)")
         
+        // TG-SKIN: the settings stack is session-lived (tab root) — unwind any
+        // pushed sub-screens before re-routing so repeat deep links don't stack
+        // duplicate flows on zombie screens.
+        navigationStackCoordinator.popToRoot(animated: false)
+        encryptionSettingsFlowCoordinator = nil
+        
         switch appRoute {
         case .settings:
             presentSettingsScreen(animated: animated)

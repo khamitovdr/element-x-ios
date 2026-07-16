@@ -30,7 +30,7 @@ struct HomeScreen: View {
             .toolbar { toolbar }
             .background(Color.compound.bgCanvasDefault.ignoresSafeArea())
             .track(screen: .Home)
-            .toolbarBloom(hasSearchBar: true)
+            // TG-SKIN: no bloom behind the nav bar; Telegram chat lists sit flush under a plain bar.
             .sheet(item: $context.spaceFiltersViewModel) { vm in
                 ChatsSpaceFiltersScreen(context: vm.context)
                     .navigationTransition(.zoom(sourceID: NavigationTransitionSourceID.spaceFilters,
@@ -48,13 +48,9 @@ struct HomeScreen: View {
         }
     }
     
+    // TG-SKIN: no leading avatar/settings button — settings lives in the tab bar.
     @ToolbarContentBuilder
     private var toolbar: some ToolbarContent {
-        ToolbarItem(placement: .navigationBarLeading) {
-            settingsButton
-                .buttonStyle(.borderless)
-        }
-        
         ToolbarItem(placement: .primaryAction) {
             if #available(iOS 26, *) {
                 newRoomButton
@@ -79,23 +75,6 @@ struct HomeScreen: View {
         }
     }
     
-    private var settingsButton: some View {
-        Button {
-            context.send(viewAction: .showSettings)
-        } label: {
-            LoadableAvatarImage(url: context.viewState.userProfile.avatarURL,
-                                name: context.viewState.userProfile.displayName,
-                                contentID: context.viewState.userProfile.id,
-                                avatarSize: .user(on: .chats),
-                                mediaProvider: context.mediaProvider)
-                .accessibilityIdentifier(A11yIdentifiers.homeScreen.userAvatar)
-                .clipShape(.circle)
-                .overlayBadge(10, isBadged: context.viewState.requiresExtraAccountSetup)
-                .compositingGroup()
-        }
-        .accessibilityLabel(L10n.commonSettings)
-    }
-    
     @ViewBuilder
     private var newRoomButton: some View {
         switch context.viewState.roomListMode {
@@ -103,7 +82,7 @@ struct HomeScreen: View {
             Button {
                 context.send(viewAction: .startChat)
             } label: {
-                CompoundIcon(\.plus)
+                CompoundIcon(\.compose) // TG-SKIN: Telegram compose glyph, matches the empty-state button.
             }
             .accessibilityLabel(L10n.actionStartChat)
             .accessibilityIdentifier(A11yIdentifiers.homeScreen.startChat)

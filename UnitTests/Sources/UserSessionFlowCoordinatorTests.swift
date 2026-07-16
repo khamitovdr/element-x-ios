@@ -105,6 +105,21 @@ struct UserSessionFlowCoordinatorTests {
         #expect(settingsStack?.stackCoordinators.isEmpty == false, "The encryption settings flow should have pushed a screen onto the settings stack.")
     }
     
+    // TG-SKIN: the settings stack is session-lived (tab root), so repeat deep links must unwind
+    // it before re-routing instead of stacking a second encryption flow on top of the first.
+    @Test
+    mutating func repeatedChatBackupSettingsRouteDoesNotStackDuplicateFlows() async throws {
+        try await process(route: .chatBackupSettings, expectedSelectedTab: .settings)
+        
+        let settingsStack = tabCoordinator?.tabCoordinators.last as? NavigationStackCoordinator
+        let firstRouteStackCount = settingsStack?.stackCoordinators.count
+        
+        try await process(route: .chatBackupSettings, expectedSelectedTab: .settings)
+        
+        #expect(settingsStack?.stackCoordinators.count == firstRouteStackCount,
+                "Repeat deep links must not stack a second encryption settings flow on top of the first.")
+    }
+    
     @Test
     mutating func roomRouteWhileSettingsTabSelected() async throws {
         try await process(route: .settings, expectedSelectedTab: .settings)

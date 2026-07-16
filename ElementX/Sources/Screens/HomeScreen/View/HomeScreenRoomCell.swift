@@ -20,7 +20,7 @@ struct HomeScreenRoomCell: View {
     let mediaProvider: MediaProviderProtocol!
     let action: (HomeScreenViewAction) -> Void
     
-    private let verticalInsets = 12.0
+    private let verticalInsets = 8.0 // TG-SKIN: Telegram row is more compact than Element's.
     private let horizontalInsets = 16.0
     
     var body: some View {
@@ -29,7 +29,7 @@ struct HomeScreenRoomCell: View {
                 action(.selectRoom(roomIdentifier: roomID))
             }
         } label: {
-            HStack(spacing: 16.0) {
+            HStack(spacing: 10.0) { // TG-SKIN: tighter avatar-to-text gap.
                 avatar
                 
                 content
@@ -81,6 +81,13 @@ struct HomeScreenRoomCell: View {
                 if let statusEmoji = room.statusEmoji {
                     Text(String(statusEmoji))
                 }
+                
+                // TG-SKIN: mute icon sits beside the name, not in the trailing badges.
+                if room.badges.isMuteShown {
+                    CompoundIcon(\.notificationsOffSolid, size: .custom(15), relativeTo: .compound.bodyLG)
+                        .foregroundColor(.compound.iconTertiary)
+                        .accessibilityLabel(L10n.a11yNotificationsMuted)
+                }
             }
             .font(headerFont)
             .foregroundColor(.compound.textPrimary)
@@ -94,15 +101,9 @@ struct HomeScreenRoomCell: View {
         }
     }
     
+    // TG-SKIN: Telegram titles are always bold, regardless of read state.
     private var headerFont: Font {
-        switch roomListActivityVisibility {
-        case .current:
-            .compound.bodyLGSemibold
-        case .show:
-            room.hasUnreads ? .compound.bodyLGSemibold : .compound.bodyLG
-        case .hide:
-            room.isHighlighted ? .compound.bodyLGSemibold : .compound.bodyLG
-        }
+        .compound.bodyLGSemibold
     }
     
     private var footer: some View {
@@ -147,19 +148,20 @@ struct HomeScreenRoomCell: View {
                         .accessibilityLabel(L10n.a11yNotificationsOngoingCall)
                 }
                 
-                if room.badges.isMuteShown {
-                    CompoundIcon(\.notificationsOffSolid, size: .custom(15), relativeTo: .compound.bodyMD)
-                        .accessibilityLabel(L10n.a11yNotificationsMuted)
-                }
-                
                 if room.badges.isMentionShown {
                     mentionIcon
                 }
                 
-                if room.badges.isDotShown {
-                    Circle()
-                        .frame(width: 12, height: 12)
+                // TG-SKIN: Telegram-style numeric pill.
+                if room.badges.unreadCount > 0 || room.badges.isDotShown {
+                    TelegramUnreadBadge(count: room.badges.unreadCount, isMuted: room.badges.isMuted)
                         .accessibilityLabel(L10n.a11yNotificationsNewMessages)
+                        .accessibilityValue(room.badges.unreadCount > 0 ? String(room.badges.unreadCount) : "")
+                } else if room.isFavourite {
+                    // TG-SKIN: Telegram shows the pin only when no unread badge; favourites map to pins.
+                    CompoundIcon(\.pin, size: .custom(15), relativeTo: .compound.bodyMD)
+                        .foregroundColor(.compound.iconQuaternary)
+                        .accessibilityLabel(L10n.commonFavourited)
                 }
             }
             .foregroundColor(room.isHighlighted ? .compound.iconAccentTertiary : .compound.iconQuaternary)
@@ -180,15 +182,9 @@ struct HomeScreenRoomCell: View {
         }
     }
     
+    // TG-SKIN: Telegram previews are always regular weight, even when unread.
     private var lastMessageFont: Font {
-        switch roomListActivityVisibility {
-        case .current:
-            .compound.bodyMD
-        case .show:
-            room.hasUnreads ? .compound.bodyMDSemibold : .compound.bodyMD
-        case .hide:
-            room.isHighlighted ? .compound.bodyMDSemibold : .compound.bodyMD
-        }
+        .compound.bodyMD
     }
 }
 
@@ -226,6 +222,14 @@ struct HomeScreenRoomCell_Previews: PreviewProvider, TestablePreview {
     
     static let roomHeroRooms = [makeRoom(heroes: [.mockDan]), makeRoom(heroes: [.mockErin])]
     
+    // TG-SKIN: badge states exercised by the Telegram-style pill/pin restyle.
+    static let badgeStateRooms = [
+        makeRoom(unreadNotificationsCount: 4, notificationMode: .allMessages), // unmuted count pill
+        makeRoom(unreadMessagesCount: 12, unreadNotificationsCount: 0, notificationMode: .mute), // muted count pill (grey)
+        makeRoom(unreadMessagesCount: 0, unreadNotificationsCount: 0, notificationMode: .allMessages, isMarkedUnread: true), // marked-unread empty pill
+        makeRoom(unreadMessagesCount: 0, unreadNotificationsCount: 0, notificationMode: .allMessages, isFavourite: true) // favourite pin, no badge
+    ]
+    
     static var previews: some View {
         VStack(spacing: 0) {
             ForEach(genericRooms) { room in
@@ -260,6 +264,14 @@ struct HomeScreenRoomCell_Previews: PreviewProvider, TestablePreview {
         }
         .previewLayout(.sizeThatFits)
         .previewDisplayName("Room Heroes")
+        
+        VStack(spacing: 0) {
+            ForEach(badgeStateRooms) { room in
+                HomeScreenRoomCell(room: room, isSelected: false, mediaProvider: MediaProviderMock(.init())) { _ in }
+            }
+        }
+        .previewLayout(.sizeThatFits)
+        .previewDisplayName("Telegram Badges")
     }
     
     static func mockRoom(summary: RoomSummary) -> HomeScreenRoom? {
@@ -278,7 +290,13 @@ struct HomeScreenRoomCell_Previews: PreviewProvider, TestablePreview {
     }
     
     static func makeRoom(lastMessageState: RoomSummary.LastMessageState? = nil,
-                         heroes: [UserProfile] = []) -> HomeScreenRoom {
+                         heroes: [UserProfile] = [],
+                         unreadMessagesCount: UInt = 2,
+                         unreadMentionsCount: UInt = 0,
+                         unreadNotificationsCount: UInt = 2,
+                         notificationMode: RoomNotificationModeProxy? = .mute,
+                         isMarkedUnread: Bool = false,
+                         isFavourite: Bool = false) -> HomeScreenRoom {
         let name = if heroes.count == 1 {
             heroes[0].displayName ?? heroes[0].id
         } else {
@@ -296,16 +314,16 @@ struct HomeScreenRoomCell_Previews: PreviewProvider, TestablePreview {
                                   lastMessage: AttributedString("How do you see the Emperor then? You think he keeps office hours?"),
                                   lastMessageDate: .mock,
                                   lastMessageState: lastMessageState,
-                                  unreadMessagesCount: 2,
-                                  unreadMentionsCount: 0,
-                                  unreadNotificationsCount: 2,
-                                  notificationMode: .mute,
+                                  unreadMessagesCount: unreadMessagesCount,
+                                  unreadMentionsCount: unreadMentionsCount,
+                                  unreadNotificationsCount: unreadNotificationsCount,
+                                  notificationMode: notificationMode,
                                   canonicalAlias: "#foundation-and-empire:matrix.org",
                                   alternativeAliases: [],
                                   hasOngoingCall: false,
                                   activeCallIntent: nil,
-                                  isMarkedUnread: false,
-                                  isFavourite: false,
+                                  isMarkedUnread: isMarkedUnread,
+                                  isFavourite: isFavourite,
                                   isTombstoned: false)
         
         return .init(summary: summary)

@@ -154,9 +154,11 @@ enum RoomAvatarSizeOnScreen {
         case .messageForwarding, .roomSelection,
              .spaceAddRooms:
             36
-        case .chats, .spaces, .spaceSettings,
+        case .spaces, .spaceSettings,
              .spaceAddRoomsSelected, .search:
             52
+        case .chats:
+            60 // TG-SKIN: Telegram avatar diameter
         case .joinRoom, .spaceHeader, .editSpaceDetails:
             64
         case .details, .editRoomDetails:

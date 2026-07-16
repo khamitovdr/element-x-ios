@@ -198,6 +198,9 @@ struct HomeScreenRoom: Identifiable, Equatable {
         let isMentionShown: Bool
         let isMuteShown: Bool
         let callBadgeType: CallBadgeType
+        // TG-SKIN: numeric Telegram-style pill count + explicit mute for gray styling.
+        let unreadCount: Int
+        let isMuted: Bool
     }
     
     var hasUnreads = false
@@ -239,7 +242,7 @@ struct HomeScreenRoom: Identifiable, Equatable {
         HomeScreenRoom(id: UUID().uuidString,
                        roomID: nil,
                        type: .placeholder,
-                       badges: .init(isDotShown: false, isMentionShown: false, isMuteShown: false, callBadgeType: .none),
+                       badges: .init(isDotShown: false, isMentionShown: false, isMuteShown: false, callBadgeType: .none, unreadCount: 0, isMuted: false),
                        name: "Placeholder room name",
                        isDirect: false,
                        isHighlighted: false,
@@ -273,6 +276,17 @@ extension HomeScreenRoom {
         let isMuteShown = summary.isMuted
         let isHighlighted = summary.isMarkedUnread || (!summary.isMuted && (summary.hasUnreadNotifications || summary.hasUnreadMentions)) || isUnseenInvite
         
+        // TG-SKIN: Telegram-style numeric pill. Falls back to the message count when
+        // the room doesn't notify (muted or mentions-only) so the empty pill is
+        // reserved exclusively for marked-unread.
+        let unreadCount = if !isDotShown {
+            0
+        } else if !summary.isMuted, summary.hasUnreadNotifications {
+            Int(summary.unreadNotificationsCount)
+        } else {
+            Int(summary.unreadMessagesCount)
+        }
+        
         let callBadge = if summary.hasOngoingCall {
             summary.activeCallIntent == .audio ? CallBadgeType.voice : CallBadgeType.video
         } else {
@@ -291,7 +305,9 @@ extension HomeScreenRoom {
                   badges: .init(isDotShown: isDotShown,
                                 isMentionShown: isMentionShown,
                                 isMuteShown: isMuteShown,
-                                callBadgeType: callBadge),
+                                callBadgeType: callBadge,
+                                unreadCount: unreadCount,
+                                isMuted: summary.isMuted),
                   hasUnreads: summary.hasUnreadMessages,
                   name: summary.name,
                   isDirect: summary.isDirect,
