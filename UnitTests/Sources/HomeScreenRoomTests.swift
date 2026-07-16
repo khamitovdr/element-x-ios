@@ -261,4 +261,70 @@ struct HomeScreenRoomTests {
         #expect(room.badges.isMuteShown)
         #expect(!room.badges.isMentionShown)
     }
+    
+    // MARK: - Unread count
+    
+    // Unmuted room with notifications → blue-pill count from unreadNotificationsCount.
+    @Test
+    mutating func unreadCountForUnmutedRoom() {
+        setupRoomSummary(isMarkedUnread: false,
+                         unreadMessagesCount: 10,
+                         unreadMentionsCount: 0,
+                         unreadNotificationsCount: 4,
+                         notificationMode: .allMessages,
+                         hasOngoingCall: false)
+        
+        let room = HomeScreenRoom(summary: roomSummary)
+        
+        #expect(room.badges.unreadCount == 4)
+        #expect(!room.badges.isMuted)
+    }
+    
+    // Muted room → gray-pill count from unreadMessagesCount (Telegram semantics).
+    @Test
+    mutating func unreadCountForMutedRoom() {
+        setupRoomSummary(isMarkedUnread: false,
+                         unreadMessagesCount: 10,
+                         unreadMentionsCount: 0,
+                         unreadNotificationsCount: 0,
+                         notificationMode: .mute,
+                         hasOngoingCall: false)
+        
+        let room = HomeScreenRoom(summary: roomSummary)
+        
+        #expect(room.badges.unreadCount == 10)
+        #expect(room.badges.isMuted)
+    }
+    
+    // Muted room with no marked-unread flag, in a mode that hides activity badges entirely → count gated to 0.
+    @Test
+    mutating func unreadCountGatedByActivityVisibility() {
+        setupRoomSummary(isMarkedUnread: false,
+                         unreadMessagesCount: 10,
+                         unreadMentionsCount: 0,
+                         unreadNotificationsCount: 0,
+                         notificationMode: .mute,
+                         hasOngoingCall: false)
+        
+        let room = HomeScreenRoom(summary: roomSummary, roomListActivityVisibility: .hide)
+        
+        #expect(!room.badges.isDotShown)
+        #expect(room.badges.unreadCount == 0)
+    }
+    
+    // Marked-unread with no real unread counts keeps the dot but the pill has nothing to show.
+    @Test
+    mutating func unreadCountEmptyPillWhenMarkedUnreadWithZeroCount() {
+        setupRoomSummary(isMarkedUnread: true,
+                         unreadMessagesCount: 0,
+                         unreadMentionsCount: 0,
+                         unreadNotificationsCount: 0,
+                         notificationMode: .allMessages,
+                         hasOngoingCall: false)
+        
+        let room = HomeScreenRoom(summary: roomSummary)
+        
+        #expect(room.badges.isDotShown)
+        #expect(room.badges.unreadCount == 0)
+    }
 }
