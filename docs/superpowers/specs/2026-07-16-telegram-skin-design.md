@@ -96,7 +96,7 @@ Candidate list (not committed): Telegram-style context-menu preview, tab-switch 
 ## Decisions log
 
 - Copy-paste of Telegram components: **rejected** (AsyncDisplayKit, incompatible framework). Transcribe values instead.
-- Editing vendored `compound-ios` in place: **rejected** (upstream touches it; recurring conflicts).
+- Editing vendored `compound-ios` in place: **rejected** as the general mechanism (upstream touches it; recurring conflicts) — with one exception: the single TG-SKIN-marked `decorativeColors` accessor change, required because the array was captured before overrides apply.
 - Parallel Telegram UI kit + screen rewrites: **rejected** (permanent divergence).
 - Hiding Spaces/Search tabs: **rejected by user** — all existing tabs stay, restyled.
 - Settings: **4th tab** (user-approved).
