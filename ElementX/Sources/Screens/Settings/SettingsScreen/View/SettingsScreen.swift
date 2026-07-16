@@ -232,10 +232,13 @@ struct SettingsScreen: View {
         Text(L10n.settingsVersionNumber(InfoPlistReader.main.bundleShortVersionString, InfoPlistReader.main.bundleVersion))
     }
     
+    @ToolbarContentBuilder
     private var toolbar: some ToolbarContent {
-        ToolbarItem(placement: .primaryAction) {
-            ToolbarButton(role: .close) { context.send(viewAction: .close) }
-                .accessibilityIdentifier(A11yIdentifiers.settingsScreen.done)
+        if !context.viewState.hidesDoneButton { // TG-SKIN: tab roots have no Done
+            ToolbarItem(placement: .primaryAction) {
+                ToolbarButton(role: .close) { context.send(viewAction: .close) }
+                    .accessibilityIdentifier(A11yIdentifiers.settingsScreen.done)
+            }
         }
     }
     

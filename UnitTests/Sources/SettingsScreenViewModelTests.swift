@@ -16,12 +16,7 @@ struct SettingsScreenViewModelTests {
     private var context: SettingsScreenViewModelType.Context
     
     init() {
-        let appSettings = AppSettings.volatile()
-        let userSession = UserSessionMock(.init(clientProxy: ClientProxyMock(.init(userID: ""))))
-        viewModel = SettingsScreenViewModel(userSession: userSession,
-                                            appSettings: appSettings,
-                                            isBugReportServiceEnabled: true,
-                                            isInSecondaryWindow: false)
+        viewModel = Self.makeViewModel()
         context = viewModel.context
     }
     
@@ -44,5 +39,28 @@ struct SettingsScreenViewModelTests {
         let deferred = deferFulfillment(viewModel.actions) { $0 == .analytics }
         context.send(viewAction: .analytics)
         try await deferred.fulfill()
+    }
+    
+    // TG-SKIN: tab roots hide the Done button.
+    @Test
+    func doneButtonHiddenWhenRootOfTab() {
+        let viewModel = Self.makeViewModel(hidesDoneButton: true)
+        #expect(viewModel.context.viewState.hidesDoneButton)
+    }
+    
+    @Test
+    func doneButtonShownByDefault() {
+        let viewModel = Self.makeViewModel()
+        #expect(!viewModel.context.viewState.hidesDoneButton)
+    }
+    
+    private static func makeViewModel(hidesDoneButton: Bool = false) -> SettingsScreenViewModelProtocol {
+        let appSettings = AppSettings.volatile()
+        let userSession = UserSessionMock(.init(clientProxy: ClientProxyMock(.init(userID: ""))))
+        return SettingsScreenViewModel(userSession: userSession,
+                                       appSettings: appSettings,
+                                       isBugReportServiceEnabled: true,
+                                       isInSecondaryWindow: false,
+                                       hidesDoneButton: hidesDoneButton)
     }
 }

@@ -50,6 +50,8 @@ struct SettingsScreenViewState: BindableState {
     
     let navigationBarVisibility: Visibility
     
+    var hidesDoneButton = false // TG-SKIN: true when the screen is a tab root
+    
     var bindings = SettingsScreenViewStateBindings()
 }
 

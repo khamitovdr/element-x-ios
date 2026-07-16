@@ -20,7 +20,11 @@ class SettingsScreenViewModel: SettingsScreenViewModelType, SettingsScreenViewMo
         actionsSubject.eraseToAnyPublisher()
     }
     
-    init(userSession: UserSessionProtocol, appSettings: AppSettings, isBugReportServiceEnabled: Bool, isInSecondaryWindow: Bool) {
+    init(userSession: UserSessionProtocol,
+         appSettings: AppSettings,
+         isBugReportServiceEnabled: Bool,
+         isInSecondaryWindow: Bool,
+         hidesDoneButton: Bool = false) { // TG-SKIN
         self.appSettings = appSettings
         
         super.init(initialViewState: .init(deviceID: userSession.clientProxy.deviceID,
@@ -30,7 +34,8 @@ class SettingsScreenViewModel: SettingsScreenViewModelType, SettingsScreenViewMo
                                            showDeveloperOptions: appSettings.developerOptionsEnabled,
                                            showAnalyticsSettings: appSettings.canPromptForAnalytics,
                                            isBugReportServiceEnabled: isBugReportServiceEnabled,
-                                           navigationBarVisibility: isInSecondaryWindow ? .hidden : .automatic),
+                                           navigationBarVisibility: isInSecondaryWindow ? .hidden : .automatic,
+                                           hidesDoneButton: hidesDoneButton), // TG-SKIN
                    mediaProvider: userSession.mediaProvider)
         
         appSettings.developerOptionsEnabledPublisher

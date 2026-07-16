@@ -122,6 +122,7 @@ class UserSessionFlowCoordinator: FlowCoordinatorProtocol {
         let settingsStackCoordinator = NavigationStackCoordinator()
         settingsTabFlowCoordinator = SettingsFlowCoordinator(appLockService: appLockService,
                                                              isInSecondaryWindow: false,
+                                                             isRootOfTab: true, // TG-SKIN
                                                              navigationStackCoordinator: settingsStackCoordinator,
                                                              flowParameters: flowParameters)
         settingsTabDetails = .init(tag: HomeTab.settings, title: L10n.commonSettings, icon: \.settings, selectedIcon: \.settingsSolid)

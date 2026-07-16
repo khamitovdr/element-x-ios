@@ -20,6 +20,7 @@ enum SettingsFlowCoordinatorAction {
 class SettingsFlowCoordinator: FlowCoordinatorProtocol {
     private let appLockService: AppLockServiceProtocol
     private let isInSecondaryWindow: Bool
+    private let isRootOfTab: Bool // TG-SKIN: true when mounted as the persistent settings tab
     private let navigationStackCoordinator: NavigationStackCoordinator
     private let flowParameters: CommonFlowParameters
     
@@ -41,10 +42,12 @@ class SettingsFlowCoordinator: FlowCoordinatorProtocol {
     
     init(appLockService: AppLockServiceProtocol,
          isInSecondaryWindow: Bool,
+         isRootOfTab: Bool = false, // TG-SKIN
          navigationStackCoordinator: NavigationStackCoordinator,
          flowParameters: CommonFlowParameters) {
         self.appLockService = appLockService
         self.isInSecondaryWindow = isInSecondaryWindow
+        self.isRootOfTab = isRootOfTab
         self.navigationStackCoordinator = navigationStackCoordinator
         self.flowParameters = flowParameters
     }
@@ -76,7 +79,8 @@ class SettingsFlowCoordinator: FlowCoordinatorProtocol {
         let settingsScreenCoordinator = SettingsScreenCoordinator(parameters: .init(userSession: flowParameters.userSession,
                                                                                     appSettings: flowParameters.appSettings,
                                                                                     isBugReportServiceEnabled: flowParameters.bugReportService.isEnabled,
-                                                                                    isInSecondaryWindow: isInSecondaryWindow))
+                                                                                    isInSecondaryWindow: isInSecondaryWindow,
+                                                                                    hidesDoneButton: isRootOfTab)) // TG-SKIN
         
         settingsScreenCoordinator.actions
             .sink { [weak self] action in
