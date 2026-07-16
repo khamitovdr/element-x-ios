@@ -123,6 +123,13 @@ free-account build removes both targets (see FREE-ACCOUNT markers).
 | `ElementX/Sources/FlowCoordinators/SettingsFlowCoordinator.swift` | `isRootOfTab` init flag → hidesDoneButton |
 | `ElementX/Sources/Screens/Settings/SettingsScreen/*` (Coordinator, Models, ViewModel, View) | `hidesDoneButton` threading + conditional Done toolbar |
 | `ElementX/Sources/Application/Navigation/NavigationTabCoordinator.swift` | tab badge → bgCriticalPrimary (Telegram red) |
+| `ElementX/Sources/Screens/HomeScreen/HomeScreenModels.swift` | `Badges.unreadCount`/`isMuted` for Telegram numeric pills |
+| `ElementX/Sources/Screens/HomeScreen/View/HomeScreenRoomCell.swift` | Telegram row: 60pt avatar spacing, always-bold title, pill/pin/mute-by-name layout |
+| `ElementX/Sources/Other/Avatars.swift` | `RoomAvatarSizeOnScreen.chats` 52 → 60 |
+| `ElementX/Sources/Screens/HomeScreen/View/HomeScreen.swift` | leading avatar/settings button removed, bloom call removed, compose icon |
+| `ElementX/Sources/Screens/HomeScreen/View/Filters/RoomListFilterView.swift` | filter chips → Telegram folder tabs (accent text + underline) |
+| `ElementX/Sources/Screens/HomeScreen/View/TelegramUnreadBadge.swift` | fork-owned file — Telegram unread pill; nothing to re-apply |
+| `ElementX/Sources/FlowCoordinators/SettingsFlowCoordinator.swift` | (also) popToRoot + encryption-coordinator clear guard in handleAppRoute |
 
 ### Post-merge re-skin checklist
 
