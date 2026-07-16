@@ -759,6 +759,10 @@ extension AccessibilityTests {
         try await performAccessibilityAudit(named: "SwipeToReplyView_Previews")
     }
 
+    func testTelegramBubbleShape() async throws {
+        try await performAccessibilityAudit(named: "TelegramBubbleShape_Previews")
+    }
+
     func testTextRoomTimelineView() async throws {
         try await performAccessibilityAudit(named: "TextRoomTimelineView_Previews")
     }

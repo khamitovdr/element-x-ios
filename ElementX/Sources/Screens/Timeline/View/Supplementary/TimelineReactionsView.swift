@@ -102,22 +102,16 @@ struct TimelineReactionButtonLabel<Content: View>: View {
     
     var body: some View {
         content()
-            .background(backgroundShape.inset(by: 1).fill(overlayBackgroundColor))
-            .overlay(backgroundShape.inset(by: 2.0).strokeBorder(overlayBorderColor))
-            .overlay(backgroundShape.strokeBorder(Color.compound.bgCanvasDefault, lineWidth: 2))
+            .background(backgroundShape.fill(backgroundColor)) // TG-SKIN: flat Telegram pill, no cutout/border
             .accessibilityElement(children: .combine)
     }
     
     var backgroundShape: some InsettableShape {
-        RoundedRectangle(cornerRadius: 14, style: .continuous)
+        Capsule() // TG-SKIN: Telegram pill shape
     }
     
-    var overlayBackgroundColor: Color {
-        isHighlighted ? Color.compound.bgSubtlePrimary : .compound.bgSubtleSecondary
-    }
-    
-    var overlayBorderColor: Color {
-        isHighlighted ? Color.compound.borderInteractivePrimary : .clear
+    var backgroundColor: Color {
+        isHighlighted ? Color.compound.bgAccentRest : .compound.bgAccentSubtle // TG-SKIN
     }
 }
 
@@ -129,10 +123,10 @@ struct TimelineCollapseButtonLabel: View {
         TimelineReactionButtonLabel {
             Text(collapsed ? L10n.screenRoomTimelineReactionsShowMore : L10n.screenRoomTimelineReactionsShowLess)
                 .frame(height: lineHeight, alignment: .center)
-                .padding(.vertical, 6)
-                .padding(.horizontal, 12)
-                .font(.compound.bodyMD)
-                .foregroundColor(.compound.textPrimary)
+                .padding(.vertical, 4) // TG-SKIN: match reaction pills' capsule height (28pt)
+                .padding(.horizontal, 10) // TG-SKIN: match reaction pills
+                .font(.compound.bodySM) // TG-SKIN: match unselected pill text
+                .foregroundColor(.compound.textActionAccent) // TG-SKIN
         }
     }
 }
@@ -182,18 +176,18 @@ struct TimelineReactionButton: View {
                     .font(.compound.bodySM)
                 if reaction.count > 1 {
                     Text(String(reaction.count))
-                        .font(.compound.bodyMD)
+                        .font(.compound.bodySM) // TG-SKIN: tighter Telegram pill sizing
                         .foregroundColor(textColor)
                 }
             }
             .frame(height: lineHeight, alignment: .center)
-            .padding(.vertical, 6)
-            .padding(.horizontal, 12)
+            .padding(.vertical, 4) // TG-SKIN
+            .padding(.horizontal, 10) // TG-SKIN
         }
     }
     
     var textColor: Color {
-        reaction.isHighlighted ? Color.compound.textPrimary : .compound.textSecondary
+        reaction.isHighlighted ? Color.compound.textOnSolidPrimary : .compound.textActionAccent // TG-SKIN
     }
 }
 
@@ -201,9 +195,9 @@ struct TimelineReactionAddMoreButtonLabel: View {
     var body: some View {
         TimelineReactionButtonLabel {
             CompoundIcon(\.reactionAdd, size: .xSmall, relativeTo: .compound.bodySM)
-                .padding(.vertical, 8)
+                .padding(.vertical, 6) // TG-SKIN: 16pt icon + 12 = 28pt, matching reaction pills' capsule height
                 .padding(.horizontal, 12)
-                .foregroundColor(.compound.iconSecondary)
+                .foregroundColor(.compound.textActionAccent) // TG-SKIN
                 .accessibilityLabel(L10n.actionReact)
         }
     }

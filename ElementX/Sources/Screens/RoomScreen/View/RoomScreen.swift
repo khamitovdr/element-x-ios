@@ -297,6 +297,7 @@ struct RoomScreen: View {
         ToolbarItem(placement: .principal) {
             RoomHeaderView(roomName: context.viewState.roomTitle,
                            roomAvatar: context.viewState.roomAvatar,
+                           showsAvatar: false, // TG-SKIN: shown trailing instead, see below.
                            dmRecipientDetails: context.viewState.dmRecipientDetails,
                            roomHistorySharingState: context.viewState.roomHistorySharingState,
                            mediaProvider: context.mediaProvider) {
@@ -324,6 +325,24 @@ struct RoomScreen: View {
                     CompoundIcon(\.threads)
                 }
             }
+        }
+        
+        // TG-SKIN: Telegram keeps the title centered in `.principal` and moves the
+        // room avatar to the trailing edge, after any call/thread controls.
+        ToolbarItem(placement: .primaryAction) {
+            // TG-SKIN: decorative — the header itself is already the VoiceOver control for
+            // room details, so hide the whole button to avoid a second, unlabeled duplicate
+            // stop (hiding only the label content still left an empty control in the tree).
+            // The identifier stays discoverable to XCUITest even while hidden.
+            Button {
+                context.send(viewAction: .displayRoomDetails)
+            } label: {
+                RoomAvatarImage(avatar: context.viewState.roomAvatar,
+                                avatarSize: .room(on: .timeline),
+                                mediaProvider: context.mediaProvider)
+                    .accessibilityIdentifier(A11yIdentifiers.roomScreen.avatar)
+            }
+            .accessibilityHidden(true)
         }
     }
 }

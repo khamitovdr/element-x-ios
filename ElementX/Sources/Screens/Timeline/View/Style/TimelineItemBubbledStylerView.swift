@@ -13,6 +13,7 @@ struct TimelineItemBubbledStylerView<Content: View>: View {
     @EnvironmentObject private var context: TimelineViewModel.Context
     @Environment(\.timelineGroupStyle) private var timelineGroupStyle
     @Environment(\.focussedEventID) private var focussedEventID
+    @Environment(\.colorScheme) private var colorScheme
     
     let timelineItem: EventBasedTimelineItemProtocol
     let adjustedDeliveryStatus: TimelineItemDeliveryStatus?
@@ -125,8 +126,10 @@ struct TimelineItemBubbledStylerView<Content: View>: View {
     }
     
     private var messageBubbleWithReactions: some View {
-        // Figma overlaps reactions by 3
-        VStack(alignment: alignment, spacing: -3) {
+        // TG-SKIN: pills sit fully below the bubble, Telegram-style, rather than overlapping it
+        // by 3pt per Figma — the deleted cutout stroke no longer needs that overlap to hide its
+        // seam against the bubble edge.
+        VStack(alignment: alignment, spacing: 2) {
             messageBubbleWithActions
                 .timelineItemAccessibility(timelineItem) {
                     context.send(viewAction: .displayTimelineItemMenu(itemID: timelineItem.id))
@@ -199,9 +202,16 @@ struct TimelineItemBubbledStylerView<Content: View>: View {
                                   adjustedDeliveryStatus: adjustedDeliveryStatus,
                                   hasContentScanningFailure: hasContentScanningFailure,
                                   context: context)
+            // TG-SKIN: outgoing bubble content renders with dark-variant tokens (white text etc.)
+            // even in light mode, matching Telegram's light-on-blue bubbles. Placed before
+            // `.bubbleBackground` so the gradient (a sibling added by that modifier, reading the
+            // real `colorScheme`) isn't flipped too. Known quirk: links still render dark-accent
+            // blue-on-blue in outgoing bubbles — acceptable for this pass, revisit on polish.
+            .environment(\.colorScheme, timelineItem.isOutgoing && colorScheme == .light ? .dark : colorScheme)
             .bubbleBackground(isOutgoing: timelineItem.isOutgoing,
                               insets: timelineItem.bubbleInsets(hasContentScanningFailure: hasContentScanningFailure),
                               color: hasContentScanningFailure ? .compound.bgCriticalSubtle : timelineItem.bubbleBackgroundColor,
+                              usesDefaultBubbleColor: !hasContentScanningFailure && timelineItem.usesDefaultBubbleColor,
                               borderColor: hasContentScanningFailure ? .compound.borderCriticalSubtle : nil)
     }
     
@@ -239,7 +249,9 @@ struct TimelineItemBubbledStylerView<Content: View>: View {
     
     private var messageBubbleTopPadding: CGFloat {
         guard timelineItem.isOutgoing || isDM else { return 0 }
-        return timelineGroupStyle == .single || timelineGroupStyle == .first ? 8 : 0
+        // TG-SKIN: Telegram's gap above an unmerged bubble is tighter than Element's 8pt
+        // (the sender header above incoming group-chat bubbles keeps its own 8pt padding).
+        return timelineGroupStyle == .single || timelineGroupStyle == .first ? 2 : 0
     }
     
     private var alignment: HorizontalAlignment {
@@ -252,18 +264,25 @@ struct TimelineItemBubbledStylerView<Content: View>: View {
 }
 
 private extension EventBasedTimelineItemProtocol {
-    var bubbleBackgroundColor: Color? {
-        let defaultColor: Color = isOutgoing ? .compound._bgBubbleOutgoing : .compound._bgBubbleIncoming
-        
+    /// TG-SKIN: whether this item renders with the plain default bubble token, as opposed to no
+    /// background at all (bare stickers/media) or an item-specific override (critical scanning
+    /// failure, handled separately in `messageBubble`). Outgoing bubbles in this state get the
+    /// screen-anchored gradient instead of a flat fill — see `bubbleBackground(usesDefaultBubbleColor:)`.
+    var usesDefaultBubbleColor: Bool {
         switch self {
         case is ImageRoomTimelineItem, is VideoRoomTimelineItem:
             // In case a reply detail or a thread decorator is present we render the color and the padding
-            return properties.replyDetails != nil || properties.isThreaded || hasMediaCaption ? defaultColor : nil
+            return properties.replyDetails != nil || properties.isThreaded || hasMediaCaption
         case is StickerRoomTimelineItem:
-            return nil
+            return false
         default:
-            return defaultColor
+            return true
         }
+    }
+    
+    var bubbleBackgroundColor: Color? {
+        guard usesDefaultBubbleColor else { return nil }
+        return isOutgoing ? .compound._bgBubbleOutgoing : .compound._bgBubbleIncoming
     }
     
     /// The insets for the full bubble content.
@@ -281,6 +300,9 @@ private extension EventBasedTimelineItemProtocol {
             return .zero
         case is PollRoomTimelineItem:
             return .init(top: 12, leading: 12, bottom: 4, trailing: 12)
+        // TG-SKIN: Telegram's text bubble insets (see docs/superpowers/specs/2026-07-16-telegram-bubble-reference.md).
+        case is TextBasedRoomTimelineItem:
+            return .init(top: 6, leading: 11, bottom: 6, trailing: 11)
         // In case a reply detail or a thread decorator is present we render the color and the padding
         case is ImageRoomTimelineItem, is VideoRoomTimelineItem:
             return properties.replyDetails != nil || properties.isThreaded || hasMediaCaption ? defaultInsets : .zero
@@ -299,7 +321,8 @@ private extension EventBasedTimelineItemProtocol {
     var contentCornerRadius: CGFloat {
         switch self {
         case is ImageRoomTimelineItem, is VideoRoomTimelineItem, is LocationRoomTimelineItem, is LiveLocationRoomTimelineItem:
-            return properties.replyDetails != nil || properties.isThreaded ? 8 : .zero
+            // TG-SKIN: nests against TelegramBubbleShape's 16pt radius (16 − 1, per the reference).
+            return properties.replyDetails != nil || properties.isThreaded ? 15 : .zero
         default:
             return .zero
         }

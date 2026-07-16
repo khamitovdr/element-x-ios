@@ -202,34 +202,24 @@ extension View {
 }
 
 private struct MessageComposerStyleModifier<Header: View>: ViewModifier {
-    @Environment(\.isEnabled) private var isEnabled
-    
     let header: Header
     
     private let composerShape = RoundedRectangle(cornerRadius: 21, style: .circular)
     
+    // TG-SKIN: fork design language: Telegram field everywhere; glass branch removed
+    // deliberately. Upstream branches on iOS 26 here (Liquid Glass vs. a flat fallback) - the
+    // fork always wants the Telegram-styled field, so that branch (and the `isEnabled`-driven
+    // glass/no-glass split it needed) is gone rather than made to coexist with this styling.
     func body(content: Content) -> some View {
-        if #available(iOS 26, *) {
-            if isEnabled {
-                mainContent(content: content)
-                    .snapshotableGlassEffect(.regular.interactive(), // Doesn't need to be interactive but Apple does it 🤷‍♂️
-                                             snapshotBackground: .compound.bgSubtleSecondary,
-                                             in: composerShape)
-            } else {
-                mainContent(content: content)
-                    .background(.compound.bgSubtlePrimary, in: composerShape)
-            }
-        } else {
-            mainContent(content: content)
-                .background {
-                    ZStack {
-                        composerShape
-                            .fill(Color.compound.bgSubtleSecondary)
-                        composerShape
-                            .stroke(Color.compound.borderInteractiveSecondary, lineWidth: 0.5)
-                    }
+        mainContent(content: content)
+            .background {
+                ZStack {
+                    composerShape
+                        .fill(Color.compound.bgCanvasDefault) // TG-SKIN: Telegram's white/black composer field.
+                    composerShape
+                        .stroke(Color.compound.borderInteractiveSecondary, lineWidth: 0.5)
                 }
-        }
+            }
     }
     
     func mainContent(content: Content) -> some View {

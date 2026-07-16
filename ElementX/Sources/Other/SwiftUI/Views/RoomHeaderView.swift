@@ -19,6 +19,9 @@ struct RoomHeaderView: View {
     let roomName: String
     var roomSubtitle: String?
     let roomAvatar: RoomAvatar
+    // TG-SKIN: RoomScreen shows its own trailing toolbar avatar instead, so it opts out;
+    // every other consumer (Thread/Space/JoinRoom headers) keeps the old inline avatar.
+    var showsAvatar = true
     var dmRecipientDetails = DMRecipientDetails()
     var roomHistorySharingState: RoomHistorySharingState?
     
@@ -28,9 +31,8 @@ struct RoomHeaderView: View {
     
     var body: some View {
         if #available(iOS 26.0, *) {
-            // On iOS 26+ we use the toolbarRole(.editor) to leading align.
             content
-                // Not using a Button here so that we get our custom padding around the avatar. This also
+                // Not using a Button here so that we get our custom padding around the header. This also
                 // helps fix a bug where the top pixel was being clipped during the push/pop animation as
                 // the Button styling results in a view that is slightly taller than a bar item should be.
                 .padding(6)
@@ -41,19 +43,21 @@ struct RoomHeaderView: View {
             // On iOS 18 and lower, the editor role causes an animation glitch with the back button whenever
             // you push a screen whilst the large title is visible on the room screen.
             content
-                // So take up as much space as possible, with a leading alignment for use in the default principal toolbar position
-                .frame(idealWidth: .greatestFiniteMagnitude, maxWidth: .infinity, alignment: .leading)
                 .roomHeaderAction(action)
         }
     }
     
+    // TG-SKIN: title/subtitle stack is always centered (on itself); the avatar is only
+    // drawn here for consumers that haven't moved it to a trailing toolbar item.
     private var content: some View {
         HStack(spacing: 8) {
-            avatarImage
-                .accessibilityHidden(true)
+            if showsAvatar {
+                avatarImage
+                    .accessibilityHidden(true)
+            }
             
             HStack(spacing: 4) {
-                VStack(alignment: .leading, spacing: 0) {
+                VStack(alignment: .center, spacing: 0) {
                     HStack(spacing: 8) {
                         Text(roomName)
                             .lineLimit(1)
@@ -105,12 +109,10 @@ struct RoomHeaderView: View {
 }
 
 extension RoomHeaderView {
+    // TG-SKIN: always automatic so the `.principal` toolbar item centers, Telegram-style.
+    // `.editor` used to force leading alignment on iOS 26+; centering is now the point.
     static var toolbarRole: ToolbarRole {
-        if #available(iOS 26.0, *) {
-            .editor
-        } else {
-            .automatic
-        }
+        .automatic
     }
 }
 

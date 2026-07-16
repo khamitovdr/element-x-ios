@@ -14,8 +14,12 @@ struct TimelineItemStatusView: View {
     let adjustedDeliveryStatus: TimelineItemDeliveryStatus?
     @EnvironmentObject private var context: TimelineViewModel.Context
     
-    private var isLastOutgoingMessage: Bool {
-        timelineItem.isOutgoing && context.viewState.timelineState.uniqueIDs.last == timelineItem.id.uniqueID
+    /// TG-SKIN: mirrors `LiveLocationRoomTimelineItem.layout`'s `.hidden` condition
+    /// (`TimelineItemSendInfoLabel.swift`) — while an outgoing live location share is
+    /// active, the inline send info renders nothing, so this below-bubble badge needs
+    /// to keep covering delivery feedback for that one case.
+    private var hidesInlineSendInfo: Bool {
+        (timelineItem as? LiveLocationRoomTimelineItem)?.content.isLive ?? false
     }
     
     var body: some View {
@@ -36,16 +40,23 @@ struct TimelineItemStatusView: View {
     
     @ViewBuilder
     var deliveryStatusBadge: some View {
-        switch adjustedDeliveryStatus {
-        case .sending:
-            TimelineDeliveryStatusView(deliveryStatus: .sending)
-        case .sent, .none:
-            if isLastOutgoingMessage {
-                // We only display the sent icon for the latest outgoing message
+        if !timelineItem.isOutgoing {
+            // Incoming items never carry a delivery status — nothing to show here.
+            EmptyView()
+        } else if hidesInlineSendInfo {
+            // TG-SKIN: carve-out for the live-location `.hidden` layout above — the inline
+            // tick doesn't render for that case, so fall back to the below-bubble badge.
+            switch adjustedDeliveryStatus {
+            case .sending:
+                TimelineDeliveryStatusView(deliveryStatus: .sending)
+            case .sent, .none:
                 TimelineDeliveryStatusView(deliveryStatus: .sent)
+            case .sendingFailed:
+                // Bubbles handle the case internally
+                EmptyView()
             }
-        case .sendingFailed:
-            // Bubbles handle the case internally
+        } else {
+            // TG-SKIN: the tick now lives inline next to the timestamp (see `TimelineItemSendInfoLabel`).
             EmptyView()
         }
     }

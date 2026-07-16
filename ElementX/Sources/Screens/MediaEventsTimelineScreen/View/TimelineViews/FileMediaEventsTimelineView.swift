@@ -30,7 +30,8 @@ struct FileMediaEventsTimelineView: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .bubbleBackground(isOutgoing: timelineItem.isOutgoing,
                               color: contentScanningFailure == nil ? .compound.bgSubtleSecondary : .compound.bgCriticalSubtle,
-                              borderColor: contentScanningFailure == nil ? nil : .compound.borderCriticalSubtle)
+                              borderColor: contentScanningFailure == nil ? nil : .compound.borderCriticalSubtle,
+                              showsTail: false) // TG-SKIN: media browser rows aren't grouped chat bubbles
             .onPreferenceChange(ContentScanningFailurePreferenceKey.self) { contentScanningFailure = $0 }
     }
 }
