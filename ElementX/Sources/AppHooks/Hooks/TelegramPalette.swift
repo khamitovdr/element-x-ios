@@ -13,7 +13,10 @@ import UIKit
 /// docs/superpowers/specs/2026-07-16-telegram-palette-reference.md
 /// "Day" is Telegram's blue-gradient light variant; "Night" is the true-black theme
 /// with the stock blue accent (0x3E88F7) from defaultDarkColorPresentationTheme.
-enum TelegramPalette {
+/// `nonisolated`: UIKit resolves `dynamic`'s provider closure on background render
+/// threads — under the app's MainActor-by-default isolation the closure would
+/// otherwise inherit @MainActor and trap (EXC_BREAKPOINT) off-main.
+nonisolated enum TelegramPalette {
     static func rgb(_ rgb: UInt32, alpha: CGFloat = 1) -> UIColor {
         UIColor(red: CGFloat((rgb >> 16) & 0xFF) / 255,
                 green: CGFloat((rgb >> 8) & 0xFF) / 255,

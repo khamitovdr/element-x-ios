@@ -32,6 +32,18 @@ struct TelegramPaletteTests {
     }
     
     @Test
+    func dynamicColorResolvesOffTheMainActor() async {
+        // UIKit/SwiftUI resolve dynamic colours on background render threads
+        // (e.g. the settings sheet's material) — the provider closure must not
+        // be MainActor-isolated or the runtime isolation check traps.
+        let color = TelegramPalette.dynamic(day: 0xFFFFFF, night: 0x000000)
+        let resolved = await Task.detached {
+            color.resolvedColor(with: UITraitCollection(userInterfaceStyle: .dark))
+        }.value
+        #expect(resolved.hexString == "#000000")
+    }
+    
+    @Test
     func peerNameColorsMatchTelegramKeyOrder() {
         #expect(TelegramPalette.peerNameColors.count == 7)
         #expect(TelegramPalette.peerNameColors[5] == 0x368AD1) // key 5 = blue, Telegram's fallback
