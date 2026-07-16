@@ -14,6 +14,7 @@ struct SettingsScreenCoordinatorParameters {
     let appSettings: AppSettings
     let isBugReportServiceEnabled: Bool
     let isInSecondaryWindow: Bool
+    var hidesDoneButton = false // TG-SKIN
 }
 
 enum SettingsScreenCoordinatorAction {
@@ -51,7 +52,8 @@ final class SettingsScreenCoordinator: CoordinatorProtocol {
         viewModel = SettingsScreenViewModel(userSession: parameters.userSession,
                                             appSettings: parameters.appSettings,
                                             isBugReportServiceEnabled: parameters.isBugReportServiceEnabled,
-                                            isInSecondaryWindow: parameters.isInSecondaryWindow)
+                                            isInSecondaryWindow: parameters.isInSecondaryWindow,
+                                            hidesDoneButton: parameters.hidesDoneButton) // TG-SKIN
         
         viewModel.actions
             .sink { [weak self] action in

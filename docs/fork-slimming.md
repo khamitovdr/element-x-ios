@@ -119,6 +119,10 @@ free-account build removes both targets (see FREE-ACCOUNT markers).
 |---|---|
 | `compound-ios/Sources/Compound/Colors/CompoundColors.swift` | `decorativeColors` computed instead of stored, so runtime overrides reach avatars/sender names |
 | `ElementX/Sources/AppHooks/Hooks/TelegramThemeHook.swift` | fork-owned file — its TG-SKIN mention is a doc-comment pointer to this playbook, not an at-risk upstream edit; nothing to re-apply |
+| `ElementX/Sources/FlowCoordinators/UserSessionFlowCoordinator.swift` | HomeTab.settings case, persistent settings tab mounting + action sink, handleAppRoute/spaces-sink retarget to tab |
+| `ElementX/Sources/FlowCoordinators/SettingsFlowCoordinator.swift` | `isRootOfTab` init flag → hidesDoneButton |
+| `ElementX/Sources/Screens/Settings/SettingsScreen/*` (Coordinator, Models, ViewModel, View) | `hidesDoneButton` threading + conditional Done toolbar |
+| `ElementX/Sources/Application/Navigation/NavigationTabCoordinator.swift` | tab badge → bgCriticalPrimary (Telegram red) |
 
 ### Post-merge re-skin checklist
 
@@ -132,3 +136,4 @@ free-account build removes both targets (see FREE-ACCOUNT markers).
 4. Run the theme suites: `TelegramPaletteTests`, `DecorativeColorOverrideTests`, `TelegramThemeHookTests`.
 5. New upstream screens inherit the skin through tokens automatically; spot-check them for
    hardcoded colours and add spot fixes to the current phase's escape list.
+6. After merging upstream changes to UserSessionFlowCoordinator, re-verify: settings entry points still select the tab (run UserSessionFlowCoordinatorTests), and the dormant sheet path is only reachable via the Mac detached branch.

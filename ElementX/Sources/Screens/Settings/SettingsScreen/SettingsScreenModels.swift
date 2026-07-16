@@ -50,6 +50,8 @@ struct SettingsScreenViewState: BindableState {
     
     let navigationBarVisibility: Visibility
     
+    var hidesDoneButton = false // TG-SKIN: true when the screen is a tab root
+    
     var bindings = SettingsScreenViewStateBindings()
 }
 
@@ -58,6 +60,8 @@ struct SettingsScreenViewStateBindings {
 }
 
 enum SettingsScreenViewAction {
+    // TG-SKIN: sent from `.onAppear`, which re-fires each time settings' persistent tab is re-selected.
+    case appeared
     case close
     case userDetails
     case analytics

@@ -13,6 +13,7 @@ typealias SettingsScreenViewModelType = StateStoreViewModelV2<SettingsScreenView
 
 class SettingsScreenViewModel: SettingsScreenViewModelType, SettingsScreenViewModelProtocol {
     private let appSettings: AppSettings
+    private let clientProxy: ClientProxyProtocol
     
     private var actionsSubject: PassthroughSubject<SettingsScreenViewModelAction, Never> = .init()
     
@@ -20,8 +21,13 @@ class SettingsScreenViewModel: SettingsScreenViewModelType, SettingsScreenViewMo
         actionsSubject.eraseToAnyPublisher()
     }
     
-    init(userSession: UserSessionProtocol, appSettings: AppSettings, isBugReportServiceEnabled: Bool, isInSecondaryWindow: Bool) {
+    init(userSession: UserSessionProtocol,
+         appSettings: AppSettings,
+         isBugReportServiceEnabled: Bool,
+         isInSecondaryWindow: Bool,
+         hidesDoneButton: Bool = false) { // TG-SKIN
         self.appSettings = appSettings
+        clientProxy = userSession.clientProxy
         
         super.init(initialViewState: .init(deviceID: userSession.clientProxy.deviceID,
                                            userProfile: userSession.clientProxy.userProfilePublisher.value,
@@ -30,7 +36,8 @@ class SettingsScreenViewModel: SettingsScreenViewModelType, SettingsScreenViewMo
                                            showDeveloperOptions: appSettings.developerOptionsEnabled,
                                            showAnalyticsSettings: appSettings.canPromptForAnalytics,
                                            isBugReportServiceEnabled: isBugReportServiceEnabled,
-                                           navigationBarVisibility: isInSecondaryWindow ? .hidden : .automatic),
+                                           navigationBarVisibility: isInSecondaryWindow ? .hidden : .automatic,
+                                           hidesDoneButton: hidesDoneButton), // TG-SKIN
                    mediaProvider: userSession.mediaProvider)
         
         appSettings.developerOptionsEnabledPublisher
@@ -81,13 +88,18 @@ class SettingsScreenViewModel: SettingsScreenViewModelType, SettingsScreenViewMo
             .store(in: &cancellables)
         
         Task {
-            await userSession.clientProxy.loadUserProfile()
-            await state.accountProfileURL = userSession.clientProxy.accountURL(action: .profile)
+            await loadProfileAndAccountURL()
         }
     }
     
     override func process(viewAction: SettingsScreenViewAction) {
         switch viewAction {
+        // TG-SKIN: settings is a persistent tab now, so `.onAppear` re-fires this on every
+        // tab re-selection, retrying the account URL fetch if the first attempt failed/was offline.
+        case .appeared:
+            Task {
+                await loadProfileAndAccountURL()
+            }
         case .close:
             actionsSubject.send(.close)
         case .userDetails:
@@ -123,5 +135,12 @@ class SettingsScreenViewModel: SettingsScreenViewModelType, SettingsScreenViewMo
         case .deactivateAccount:
             actionsSubject.send(.deactivateAccount)
         }
+    }
+    
+    /// Fetches the user's profile and the manage-account URL. Cheap and idempotent, safe to call repeatedly
+    /// (e.g. on every settings tab visit) — it only re-fetches and re-assigns state, it doesn't set up observations.
+    private func loadProfileAndAccountURL() async {
+        await clientProxy.loadUserProfile()
+        state.accountProfileURL = await clientProxy.accountURL(action: .profile)
     }
 }

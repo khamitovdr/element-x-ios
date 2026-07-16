@@ -42,6 +42,11 @@ struct SettingsScreen: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbarVisibility(context.viewState.navigationBarVisibility, for: .navigationBar)
         .toolbar { toolbar }
+        // TG-SKIN: settings is a persistent tab, so `.onAppear` (unlike `.task`) re-fires on every
+        // tab re-selection, retrying profile/account fetches that may have failed while offline.
+        .onAppear {
+            context.send(viewAction: .appeared)
+        }
     }
     
     private var userSection: some View {
@@ -232,10 +237,13 @@ struct SettingsScreen: View {
         Text(L10n.settingsVersionNumber(InfoPlistReader.main.bundleShortVersionString, InfoPlistReader.main.bundleVersion))
     }
     
+    @ToolbarContentBuilder
     private var toolbar: some ToolbarContent {
-        ToolbarItem(placement: .primaryAction) {
-            ToolbarButton(role: .close) { context.send(viewAction: .close) }
-                .accessibilityIdentifier(A11yIdentifiers.settingsScreen.done)
+        if !context.viewState.hidesDoneButton { // TG-SKIN: tab roots have no Done
+            ToolbarItem(placement: .primaryAction) {
+                ToolbarButton(role: .close) { context.send(viewAction: .close) }
+                    .accessibilityIdentifier(A11yIdentifiers.settingsScreen.done)
+            }
         }
     }
     

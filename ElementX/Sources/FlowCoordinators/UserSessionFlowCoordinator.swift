@@ -20,7 +20,7 @@ enum UserSessionFlowCoordinatorAction {
 }
 
 class UserSessionFlowCoordinator: FlowCoordinatorProtocol {
-    enum HomeTab: Hashable { case chats, spaces, search }
+    enum HomeTab: Hashable { case chats, spaces, search, settings } // TG-SKIN: + settings
     
     private let navigationRootCoordinator: NavigationRootCoordinator
     private let navigationTabCoordinator: NavigationTabCoordinator<HomeTab>
@@ -44,6 +44,11 @@ class UserSessionFlowCoordinator: FlowCoordinatorProtocol {
     
     // periphery:ignore - retaining purpose
     private var settingsFlowCoordinator: SettingsFlowCoordinator?
+    
+    // TG-SKIN: settings is a persistent 4th tab (Telegram UX). The transient
+    // settingsFlowCoordinator above remains only for the Mac detached window.
+    private let settingsTabFlowCoordinator: SettingsFlowCoordinator
+    private let settingsTabDetails: NavigationTabCoordinator<HomeTab>.TabDetails
     
     enum State: StateType {
         /// The state machine hasn't started.
@@ -112,6 +117,17 @@ class UserSessionFlowCoordinator: FlowCoordinatorProtocol {
             searchTabDetails = nil
         }
         
+        // TG-SKIN: mount settings as a persistent tab. Route it exactly once —
+        // repeat routing re-sets the root and duplicates subscriptions.
+        let settingsStackCoordinator = NavigationStackCoordinator()
+        settingsTabFlowCoordinator = SettingsFlowCoordinator(appLockService: appLockService,
+                                                             isInSecondaryWindow: false,
+                                                             isRootOfTab: true, // TG-SKIN
+                                                             navigationStackCoordinator: settingsStackCoordinator,
+                                                             flowParameters: flowParameters)
+        settingsTabDetails = .init(tag: HomeTab.settings, title: L10n.commonSettings, icon: \.settings, selectedIcon: \.settingsSolid)
+        settingsTabFlowCoordinator.handleAppRoute(.settings, animated: false)
+        
         onboardingStackCoordinator = NavigationStackCoordinator()
         onboardingFlowCoordinator = OnboardingFlowCoordinator(isNewLogin: isNewLogin,
                                                               appLockService: appLockService,
@@ -125,6 +141,7 @@ class UserSessionFlowCoordinator: FlowCoordinatorProtocol {
         if let searchTabNavigationStackCoordinator, let searchTabDetails {
             tabs.append(.init(coordinator: searchTabNavigationStackCoordinator, details: searchTabDetails))
         }
+        tabs.append(.init(coordinator: settingsStackCoordinator, details: settingsTabDetails)) // TG-SKIN
         navigationTabCoordinator.setTabs(tabs)
         
         stateMachine = flowParameters.stateMachineFactory.makeUserSessionFlowStateMachine(state: .initial)
@@ -151,10 +168,11 @@ class UserSessionFlowCoordinator: FlowCoordinatorProtocol {
             if ProcessInfo.processInfo.isiOSAppOnMac, flowParameters.windowManager.secondaryWindowsEnabled {
                 startSettingsFlow(detached: true)
             } else {
-                if stateMachine.state != .settingsScreen {
-                    stateMachine.tryEvent(.showSettingsScreen)
+                // TG-SKIN: settings is a tab; forward only sub-routes (the root is already mounted).
+                navigationTabCoordinator.selectedTab = .settings
+                if case .chatBackupSettings = appRoute {
+                    settingsTabFlowCoordinator.handleAppRoute(appRoute, animated: animated)
                 }
-                settingsFlowCoordinator?.handleAppRoute(appRoute, animated: animated)
             }
         case .call(let roomID, let isVoiceCall):
             Task { await presentCallScreen(roomID: roomID, isVoiceCall: isVoiceCall) }
@@ -256,10 +274,25 @@ class UserSessionFlowCoordinator: FlowCoordinatorProtocol {
                 case .verifyUser(let userID):
                     presentSessionVerificationScreen(flow: .userInitiator(userID: userID))
                 case .showSettings:
-                    stateMachine.tryEvent(.showSettingsScreen)
+                    handleAppRoute(.settings, animated: true) // TG-SKIN: was tryEvent(.showSettingsScreen)
                 }
             }
             .store(in: &cancellables)
+        
+        settingsTabFlowCoordinator.actions.sink { [weak self] action in
+            guard let self else { return }
+            switch action {
+            case .dismiss:
+                break // TG-SKIN: tab roots aren't dismissed (Done button hidden in the tab).
+            case .clearCache:
+                actionsSubject.send(.clearCache)
+            case .runLogoutFlow:
+                Task { await self.runLogoutFlow() } // No sheet to dismiss first (unlike the sheet path).
+            case .forceLogout:
+                actionsSubject.send(.forceLogout)
+            }
+        }
+        .store(in: &cancellables)
         
         userSession.sessionSecurityStatePublisher
             .map(\.verificationState)
