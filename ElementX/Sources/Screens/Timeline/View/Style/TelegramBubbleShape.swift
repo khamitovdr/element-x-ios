@@ -73,11 +73,16 @@ struct TelegramBubbleShape: Shape {
     private func tailPath(in rect: CGRect) -> Path {
         var path = Path()
         if isOutgoing {
+            // Traversal order reversed relative to the `else` branch (not a plain mirror of it):
+            // mirroring the body's corners across x flips the rotational sense a same-shaped
+            // subpath would need to match it, so matching the body's winding on both sides
+            // requires the two branches to trace their (mirrored) geometry in opposite orders.
+            // Verified by rendering: see TelegramBubbleShapeTests.tailSeamIsFilled.
             path.move(to: CGPoint(x: rect.maxX - Self.maxRadius, y: rect.maxY))
-            path.addLine(to: CGPoint(x: rect.maxX + Self.tailWidth, y: rect.maxY))
-            path.addQuadCurve(to: CGPoint(x: rect.maxX, y: rect.maxY - Self.tailHeight),
-                              control: CGPoint(x: rect.maxX + 1, y: rect.maxY - 6))
             path.addLine(to: CGPoint(x: rect.maxX - Self.maxRadius, y: rect.maxY - Self.tailHeight))
+            path.addLine(to: CGPoint(x: rect.maxX, y: rect.maxY - Self.tailHeight))
+            path.addQuadCurve(to: CGPoint(x: rect.maxX + Self.tailWidth, y: rect.maxY),
+                              control: CGPoint(x: rect.maxX + 1, y: rect.maxY - 6))
         } else {
             path.move(to: CGPoint(x: rect.minX + Self.maxRadius, y: rect.maxY))
             path.addLine(to: CGPoint(x: rect.minX - Self.tailWidth, y: rect.maxY))

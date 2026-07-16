@@ -44,4 +44,20 @@ struct TelegramBubbleShapeTests {
         let leadingProbe = CGPoint(x: rect.minX + 3, y: rect.minY + 3)
         #expect(!TelegramBubbleShape(groupStyle: .middle, isOutgoing: true).path(in: rect).contains(leadingProbe))
     }
+    
+    @Test
+    func tailSeamIsFilled() {
+        // Winding-cancellation regression: these probes sit inside the body's rounded
+        // bottom-tail-side corner AND inside the tail's rectangular flange - exactly the
+        // overlap where opposite subpath winding directions cancel under the default
+        // nonzero fill rule. (Probes right at the body edge, e.g. maxX-2/minX+2, don't
+        // discriminate: CoreGraphics rasterizes the coincident-edge case as filled either
+        // way, so the regression only shows up further into the overlap, hence -10/-15.)
+        let outgoing = TelegramBubbleShape(groupStyle: .last, isOutgoing: true).path(in: rect)
+        #expect(outgoing.contains(CGPoint(x: rect.maxX - 10, y: rect.maxY - 10)))
+        #expect(outgoing.contains(CGPoint(x: rect.maxX - 15, y: rect.maxY - 5)))
+        let incoming = TelegramBubbleShape(groupStyle: .single, isOutgoing: false).path(in: rect)
+        #expect(incoming.contains(CGPoint(x: rect.minX + 10, y: rect.maxY - 10)))
+        #expect(incoming.contains(CGPoint(x: rect.minX + 15, y: rect.maxY - 5)))
+    }
 }
