@@ -123,8 +123,8 @@ struct TimelineCollapseButtonLabel: View {
         TimelineReactionButtonLabel {
             Text(collapsed ? L10n.screenRoomTimelineReactionsShowMore : L10n.screenRoomTimelineReactionsShowLess)
                 .frame(height: lineHeight, alignment: .center)
-                .padding(.vertical, 6)
-                .padding(.horizontal, 12)
+                .padding(.vertical, 4) // TG-SKIN: match reaction pills' capsule height (28pt)
+                .padding(.horizontal, 10) // TG-SKIN: match reaction pills
                 .font(.compound.bodySM) // TG-SKIN: match unselected pill text
                 .foregroundColor(.compound.textActionAccent) // TG-SKIN
         }
@@ -195,7 +195,7 @@ struct TimelineReactionAddMoreButtonLabel: View {
     var body: some View {
         TimelineReactionButtonLabel {
             CompoundIcon(\.reactionAdd, size: .xSmall, relativeTo: .compound.bodySM)
-                .padding(.vertical, 8)
+                .padding(.vertical, 6) // TG-SKIN: 16pt icon + 12 = 28pt, matching reaction pills' capsule height
                 .padding(.horizontal, 12)
                 .foregroundColor(.compound.textActionAccent) // TG-SKIN
                 .accessibilityLabel(L10n.actionReact)

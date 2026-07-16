@@ -126,8 +126,10 @@ struct TimelineItemBubbledStylerView<Content: View>: View {
     }
     
     private var messageBubbleWithReactions: some View {
-        // Figma overlaps reactions by 3
-        VStack(alignment: alignment, spacing: -3) {
+        // TG-SKIN: pills sit fully below the bubble, Telegram-style, rather than overlapping it
+        // by 3pt per Figma — the deleted cutout stroke no longer needs that overlap to hide its
+        // seam against the bubble edge.
+        VStack(alignment: alignment, spacing: 2) {
             messageBubbleWithActions
                 .timelineItemAccessibility(timelineItem) {
                     context.send(viewAction: .displayTimelineItemMenu(itemID: timelineItem.id))
