@@ -239,7 +239,9 @@ struct TimelineItemBubbledStylerView<Content: View>: View {
     
     private var messageBubbleTopPadding: CGFloat {
         guard timelineItem.isOutgoing || isDM else { return 0 }
-        return timelineGroupStyle == .single || timelineGroupStyle == .first ? 8 : 0
+        // TG-SKIN: Telegram's gap above an unmerged bubble is tighter than Element's 8pt
+        // (the sender header above incoming group-chat bubbles keeps its own 8pt padding).
+        return timelineGroupStyle == .single || timelineGroupStyle == .first ? 2 : 0
     }
     
     private var alignment: HorizontalAlignment {
@@ -281,6 +283,9 @@ private extension EventBasedTimelineItemProtocol {
             return .zero
         case is PollRoomTimelineItem:
             return .init(top: 12, leading: 12, bottom: 4, trailing: 12)
+        // TG-SKIN: Telegram's text bubble insets (see docs/superpowers/specs/2026-07-16-telegram-bubble-reference.md).
+        case is TextBasedRoomTimelineItem:
+            return .init(top: 6, leading: 11, bottom: 6, trailing: 11)
         // In case a reply detail or a thread decorator is present we render the color and the padding
         case is ImageRoomTimelineItem, is VideoRoomTimelineItem:
             return properties.replyDetails != nil || properties.isThreaded || hasMediaCaption ? defaultInsets : .zero
@@ -299,7 +304,8 @@ private extension EventBasedTimelineItemProtocol {
     var contentCornerRadius: CGFloat {
         switch self {
         case is ImageRoomTimelineItem, is VideoRoomTimelineItem, is LocationRoomTimelineItem, is LiveLocationRoomTimelineItem:
-            return properties.replyDetails != nil || properties.isThreaded ? 8 : .zero
+            // TG-SKIN: nests against TelegramBubbleShape's 16pt radius (16 − 1, per the reference).
+            return properties.replyDetails != nil || properties.isThreaded ? 15 : .zero
         default:
             return .zero
         }

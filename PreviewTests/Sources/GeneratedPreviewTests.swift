@@ -1328,6 +1328,13 @@ extension PreviewTests {
     }
 
     @Test
+    func telegramBubbleShape() async throws {
+        for (index, preview) in TelegramBubbleShape_Previews._allPreviews.enumerated() {
+            try await assertSnapshots(matching: preview, step: index)
+        }
+    }
+
+    @Test
     func textRoomTimelineView() async throws {
         for (index, preview) in TextRoomTimelineView_Previews._allPreviews.enumerated() {
             try await assertSnapshots(matching: preview, step: index)

@@ -34,37 +34,17 @@ private struct TimelineItemBubbleBackgroundModifier: ViewModifier {
     var color: Color?
     var borderColor: Color?
     
+    // TG-SKIN: Telegram's merged-corner bubble shape (with tail) replaces Element's fixed 12pt
+    // corner radius. The tail draws outside the content bounds by design; backgrounds don't clip.
     func body(content: Content) -> some View {
+        let shape = TelegramBubbleShape(groupStyle: timelineGroupStyle, isOutgoing: isOutgoing)
         content
             .padding(insets)
-            .background(color)
-            .cornerRadius(12, corners: roundedCorners)
+            .background { shape.fill(color ?? .clear) }
             .overlay {
                 if let borderColor {
-                    RoundedCornerShape(radius: 12, corners: roundedCorners)
-                        .stroke(borderColor)
+                    shape.stroke(borderColor)
                 }
             }
-    }
-    
-    private var roundedCorners: UIRectCorner {
-        switch timelineGroupStyle {
-        case .single:
-            return .allCorners
-        case .first:
-            if isOutgoing {
-                return [.topLeft, .topRight, .bottomLeft]
-            } else {
-                return [.topLeft, .topRight, .bottomRight]
-            }
-        case .middle:
-            return isOutgoing ? [.topLeft, .bottomLeft] : [.topRight, .bottomRight]
-        case .last:
-            if isOutgoing {
-                return [.topLeft, .bottomLeft, .bottomRight]
-            } else {
-                return [.topRight, .bottomLeft, .bottomRight]
-            }
-        }
     }
 }
