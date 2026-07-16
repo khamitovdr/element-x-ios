@@ -28,9 +28,8 @@ struct RoomHeaderView: View {
     
     var body: some View {
         if #available(iOS 26.0, *) {
-            // On iOS 26+ we use the toolbarRole(.editor) to leading align.
             content
-                // Not using a Button here so that we get our custom padding around the avatar. This also
+                // Not using a Button here so that we get our custom padding around the header. This also
                 // helps fix a bug where the top pixel was being clipped during the push/pop animation as
                 // the Button styling results in a view that is slightly taller than a bar item should be.
                 .padding(6)
@@ -41,58 +40,46 @@ struct RoomHeaderView: View {
             // On iOS 18 and lower, the editor role causes an animation glitch with the back button whenever
             // you push a screen whilst the large title is visible on the room screen.
             content
-                // So take up as much space as possible, with a leading alignment for use in the default principal toolbar position
-                .frame(idealWidth: .greatestFiniteMagnitude, maxWidth: .infinity, alignment: .leading)
                 .roomHeaderAction(action)
         }
     }
     
+    // TG-SKIN: the avatar moved to the trailing toolbar item, so this is just the
+    // centered title/subtitle stack — no leading alignment or avatar here anymore.
     private var content: some View {
-        HStack(spacing: 8) {
-            avatarImage
-                .accessibilityHidden(true)
-            
-            HStack(spacing: 4) {
-                VStack(alignment: .leading, spacing: 0) {
-                    HStack(spacing: 8) {
-                        Text(roomName)
-                            .lineLimit(1)
-                            .font(.compound.bodyMDSemibold)
-                            .foregroundStyle(.compound.textPrimary)
-                            .accessibilityIdentifier(A11yIdentifiers.roomScreen.name)
-                        
-                        if let statusEmoji = dmRecipientDetails.status?.displayed?.emoji {
-                            Text(String(statusEmoji))
-                                .font(.compound.bodyLG)
-                                .foregroundStyle(.compound.textPrimary)
-                        }
-                    }
+        HStack(spacing: 4) {
+            VStack(alignment: .center, spacing: 0) {
+                HStack(spacing: 8) {
+                    Text(roomName)
+                        .lineLimit(1)
+                        .font(.compound.bodyMDSemibold)
+                        .foregroundStyle(.compound.textPrimary)
+                        .accessibilityIdentifier(A11yIdentifiers.roomScreen.name)
                     
-                    if let roomSubtitle {
-                        Text(roomSubtitle)
-                            .lineLimit(1)
-                            .font(.compound.bodyXS)
-                            .foregroundStyle(.compound.textSecondary)
+                    if let statusEmoji = dmRecipientDetails.status?.displayed?.emoji {
+                        Text(String(statusEmoji))
+                            .font(.compound.bodyLG)
+                            .foregroundStyle(.compound.textPrimary)
                     }
                 }
                 
-                if let verificationState = dmRecipientDetails.verification {
-                    VerificationBadge(verificationState: verificationState, size: .xSmall, relativeTo: .compound.bodyMDSemibold)
-                }
-                
-                if let historySharingIcon {
-                    CompoundIcon(historySharingIcon, size: .xSmall, relativeTo: .compound.bodyMDSemibold)
-                        .foregroundStyle(.compound.iconInfoPrimary)
+                if let roomSubtitle {
+                    Text(roomSubtitle)
+                        .lineLimit(1)
+                        .font(.compound.bodyXS)
+                        .foregroundStyle(.compound.textSecondary)
                 }
             }
+            
+            if let verificationState = dmRecipientDetails.verification {
+                VerificationBadge(verificationState: verificationState, size: .xSmall, relativeTo: .compound.bodyMDSemibold)
+            }
+            
+            if let historySharingIcon {
+                CompoundIcon(historySharingIcon, size: .xSmall, relativeTo: .compound.bodyMDSemibold)
+                    .foregroundStyle(.compound.iconInfoPrimary)
+            }
         }
-    }
-    
-    private var avatarImage: some View {
-        RoomAvatarImage(avatar: roomAvatar,
-                        avatarSize: .room(on: .timeline),
-                        mediaProvider: mediaProvider)
-            .accessibilityIdentifier(A11yIdentifiers.roomScreen.avatar)
     }
     
     private var historySharingIcon: KeyPath<CompoundIcons, Image>? {
@@ -105,12 +92,10 @@ struct RoomHeaderView: View {
 }
 
 extension RoomHeaderView {
+    // TG-SKIN: always automatic so the `.principal` toolbar item centers, Telegram-style.
+    // `.editor` used to force leading alignment on iOS 26+; centering is now the point.
     static var toolbarRole: ToolbarRole {
-        if #available(iOS 26.0, *) {
-            .editor
-        } else {
-            .automatic
-        }
+        .automatic
     }
 }
 

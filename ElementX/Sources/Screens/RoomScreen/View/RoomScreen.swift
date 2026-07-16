@@ -325,6 +325,19 @@ struct RoomScreen: View {
                 }
             }
         }
+        
+        // TG-SKIN: Telegram keeps the title centered in `.principal` and moves the
+        // room avatar to the trailing edge, after any call/thread controls.
+        ToolbarItem(placement: .primaryAction) {
+            Button {
+                context.send(viewAction: .displayRoomDetails)
+            } label: {
+                RoomAvatarImage(avatar: context.viewState.roomAvatar,
+                                avatarSize: .room(on: .timeline),
+                                mediaProvider: context.mediaProvider)
+                    .accessibilityIdentifier(A11yIdentifiers.roomScreen.avatar)
+            }
+        }
     }
 }
 
