@@ -90,3 +90,30 @@ runs are gated as a first-time contributor — approve them with
   it needs Element's private-submodule token and can never pass here.
 - Local UnitTests runs show ~26 AppLock/Keychain failures (no signing
   identity); those same suites pass on GitHub CI. Trust CI for those.
+
+## Telegram skin (TG-SKIN)
+
+The fork re-skins the app to Telegram's Day/Night look.
+Spec: `docs/superpowers/specs/2026-07-16-telegram-skin-design.md` ·
+Palette truth: `docs/superpowers/specs/2026-07-16-telegram-palette-reference.md`
+
+Mechanism: `TelegramThemeHook` (fork-owned, `ElementX/Sources/AppHooks/Hooks/`) overrides
+Compound colour tokens at startup, registered via `registerCompoundHook` in
+`AppHooks+Fork.setUp()` and applied by upstream's existing `AppCoordinator` call.
+Raw values: `TelegramPalette.swift`. Previews/PreviewTests never run the hook, so
+snapshots stay on stock Compound colours by design.
+
+### TG-SKIN marker inventory (grep after every upstream merge)
+
+| File | Edit |
+|---|---|
+| `compound-ios/Sources/Compound/Colors/CompoundColors.swift` | `decorativeColors` computed instead of stored, so runtime overrides reach avatars/sender names |
+
+### Post-merge re-skin checklist
+
+1. `grep -rn "TG-SKIN" --include="*.swift" .` — every inventory row still present? Re-apply any lost edit.
+2. Upstream bumped `compound-design-tokens`? A renamed/removed token fails the build inside
+   `TelegramThemeHook.mappings` — remap using the palette reference doc.
+3. Run the theme suites: `TelegramPaletteTests`, `DecorativeColorOverrideTests`, `TelegramThemeHookTests`.
+4. New upstream screens inherit the skin through tokens automatically; spot-check them for
+   hardcoded colours and add spot fixes to the current phase's escape list.
